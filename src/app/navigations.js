@@ -34,6 +34,21 @@ export const navigations = [
       },
     ]
   },
+
+  {
+    name: "Users",
+    description: "Lorem ipsum dolor sit.",
+    type: "dropDown",
+    icon: "i-User",
+    sub: [
+      {
+        icon: "i-Clock-3",
+        name: "View",
+        path: "/dashboard/users",
+        type: "link"
+      },
+    ]
+  },
   {
     name: "Roles",
     description: "Lorem ipsum dolor sit.",

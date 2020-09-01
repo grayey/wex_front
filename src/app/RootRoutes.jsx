@@ -21,6 +21,7 @@ import contactRoutes from "./views/app/contact/contactRoutes";
 import categoriesRoutes from "./views/categories/categoriesRoute";
 import rolesRoutes from "./views/roles/rolesRoutes";
 import tasksRoutes from "./views/tasks/tasksRoutes";
+import usersRoutes from "./views/users/usersRoutes";
 
 const redirectRoute = [
   {
@@ -46,6 +47,7 @@ const routes = [
       ...categoriesRoutes,
       ...tasksRoutes,
       ...rolesRoutes,
+      ...usersRoutes,
       ...uiKitsRoutes,
       ...formsRoutes,
       ...widgetsRoute,
