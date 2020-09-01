@@ -38,7 +38,7 @@ export class RoleDetailComponent extends Component{
         isSaving:false,
         isFetching:true,
         saveMsg:'Save',
-        updateMsg:'Update',
+        updateMsg:'Save',
         editedRole: {},
         createRoleForm: {
             name: "",
@@ -114,7 +114,28 @@ export class RoleDetailComponent extends Component{
         this.setState({ createRoleForm, updateRoleForm });
     }
 
-    
+    /**
+     * 
+     * @param {*} task 
+     * This method saves the permissions for a role
+     */
+    addPermission = (task) =>{
+        const {viewedRole} = this.state;
+        const tasks = viewedRole['tasks'];
+        const findTask = tasks.findIndex(t => t._id == task._id);
+        if(findTask > 0){
+            tasks.splice(findTask, 1) // remove
+        }else{
+            tasks.push(task) // add
+            console.log('Tasks ', tasks)
+        }
+        viewedRole['tasks'] = tasks;
+        console.log("Viewed Role:: ",viewedRole);
+
+        this.setState({viewedRole})
+
+
+    }
 
 
 
@@ -196,6 +217,9 @@ export class RoleDetailComponent extends Component{
     return utils.toTiltle(taskName);
   }
 
+  includesTask = (task) =>{
+      return this.state.viewedRole.tasks.filter( t=> t._id == task._id ).length > 0
+  }
     /**
      * This method creates a new role
      */
@@ -236,36 +260,26 @@ export class RoleDetailComponent extends Component{
     /**
      * This method updates a new role
      */
-    updateRole = async ()=>{
-        let {updateRoleForm, allRoles, editedRole} = this.state; 
+    savePermissions = async ()=>{
         let isSaving = true;
-        let updateMsg = 'Updating';
+        let updateMsg = 'Saving';
         this.setState({isSaving, updateMsg})
-        this.appMainService.updateRole(updateRoleForm, editedRole._id).then(
-            (updatedRole)=>{
-                updatedRole.temp_flash = true
+        this.appMainService.updateRole(this.state.viewedRole, this.state.viewedRole._id).then(
+            (viewedRole)=>{
                 isSaving = false;
-                updateMsg = 'Update';
-                allRoles.splice(this.state.editedIndex, 1, updatedRole)
-                this.setState({ allRoles, isSaving, updateMsg })
+                updateMsg = 'Save';
+                this.setState({ viewedRole, isSaving, updateMsg })
                 const successNotification = {
                     type:'success',
-                    msg:`${updatedRole.name} successfully updated!`
+                    msg:`Successfully updated ${viewedRole.name} permissions!`
                 }
                 new AppNotification(successNotification)
-                this.toggleModal('edit');
-
-             setTimeout(()=>{
-                    updatedRole.temp_flash = false
-                    allRoles.splice(this.state.editedIndex, 1, updatedRole)
-                    this.setState({ allRoles, isSaving, updateMsg })
-                }, 10000);
                
             }
         ).catch(
             (error)=>{
                 isSaving = false;
-                updateMsg = 'Update';
+                updateMsg = 'Save';
                 this.setState({ isSaving, updateMsg })
                 const errorNotification = {
                     type:'error',
@@ -598,7 +612,7 @@ export class RoleDetailComponent extends Component{
                                     <div className="card ">
                                                 <div className="card-header card-title mb-0 d-flex align-items-center justify-content-between border-0">
                         
-                                                        <h3 className="w-50 float-left card-title m-0"><i className="i-Gears"></i> Customer Care permissions</h3>
+                                                        <h3 className="w-50 float-left card-title m-0"><i className="i-Gears"></i> <b>{this.state.viewedRole?.name}</b> permissions</h3>
 
                                                         <div className='float-right'>
                                                              {/* <Button  variant="secondary_custom" className="ripple m-1 text-capitalize" onClick={ ()=>{ this.toggleModal('create')} }><i className='i-Add'></i> Create Role</Button> */}
@@ -609,8 +623,8 @@ export class RoleDetailComponent extends Component{
                                                                     progress={0.5}
                                                                     type='button'
                                                                     data-style={EXPAND_RIGHT}
-                                                                    >
-                                                                 Save Permissions
+                                                                    onClick = {this.savePermissions}>
+                                                                 {this.state.updateMsg} Permissions
                                                             </LaddaButton>
                                                          </div>
 
@@ -671,12 +685,12 @@ export class RoleDetailComponent extends Component{
                                                         <Form.Check
                                                                         name="checkbox2"
                                                                         onChange={()=>{
-                                                                        alert('Clciked')
+                                                                        this.addPermission(task)
                                                                         }}
                                                                         value="check321"
-                                                                        checked={true}
+                                                                        checked={this.includesTask(task)}
                                                                         type="checkbox"
-                                                                        id="check2"
+                                                                        id={`check2${task._id}`}
                                                                         label=""
                                                                         />
                                                               

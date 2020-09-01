@@ -109,6 +109,7 @@ export class RolesComponent extends Component{
         let isSaving = true;
         let saveMsg = 'Saving';
         this.setState({isSaving, saveMsg})
+        createRoleForm['tasks'] = [] // create empty tasks array
         this.appMainService.createRole(createRoleForm).then(
             (roleData)=>{
                 isSaving = false;
