@@ -21,6 +21,7 @@ import LaddaButton, {
 
     CONTRACT,
   } from "react-ladda";
+import { toLength } from "lodash";
 
 export class RoleDetailComponent extends Component{
 
@@ -28,28 +29,16 @@ export class RoleDetailComponent extends Component{
 
         roleSlug:"",
         viewedRole:{},
+        allChecked:false,
         navigate: false,
         newRoute:"",
         editedIndex:0,
         allRoles:[],
         allTasks:[],
-        showEditModal:false,
-        showCreateModal:false,
         isSaving:false,
         isFetching:true,
-        saveMsg:'Save',
         updateMsg:'Save',
-        editedRole: {},
-        createRoleForm: {
-            name: "",
-            description: "",
-          },
-          updateRoleForm: {
-            name: "",
-            description: "",
-          },
-
-          roleMembers: [
+        roleMembers: [
             {
               name: "Smith Doe",
               email: "Smith@gmail.com",
@@ -97,22 +86,15 @@ export class RoleDetailComponent extends Component{
          this.getAllTasks();
     }
 
-    /**
-     * 
-     * @param {*} event 
-     * @param {*} errors 
-     * @param {*} form 
-     */
+ customTabHeader = (title, icon) => (
+        <div className="d-flex align-items-center">
+          <span className="mr-2">
+            <i className={icon}></i>
+          </span>
+          <span>{title}</span>
+        </div>
+      );
 
-    handleChange = (event, form='create') => {
-        const {createRoleForm, updateRoleForm} = this.state
-        if(form=='create'){
-            createRoleForm[event.target.name] = event.target.value;
-        }else if(form=='edit'){
-            updateRoleForm[event.target.name] = event.target.value;
-        }
-        this.setState({ createRoleForm, updateRoleForm });
-    }
 
     /**
      * 
@@ -120,21 +102,18 @@ export class RoleDetailComponent extends Component{
      * This method saves the permissions for a role
      */
     addPermission = (task) =>{
-        const {viewedRole} = this.state;
+        let {viewedRole,allChecked} = this.state;
         const tasks = viewedRole['tasks'];
         const findTask = tasks.findIndex(t => t._id == task._id);
-        if(findTask > 0){
+        if(findTask != -1){
             tasks.splice(findTask, 1) // remove
         }else{
             tasks.push(task) // add
             console.log('Tasks ', tasks)
         }
+        allChecked = tasks?.length == this.state.allTasks.length && tasks.length 
         viewedRole['tasks'] = tasks;
-        console.log("Viewed Role:: ",viewedRole);
-
-        this.setState({viewedRole})
-
-
+        this.setState({viewedRole, allChecked})
     }
 
 
@@ -198,7 +177,9 @@ export class RoleDetailComponent extends Component{
                   return this.getAllTasks(true);
                    
                }
-               this.setState({ allTasks, isFetching })
+               const allChecked = this.state?.viewedRole?.tasks?.length == allTasks.length && allTasks.length ;
+               
+               this.setState({ allTasks, isFetching, allChecked })
                console.log('Tasks response', tasksResponse)
            }
        ).catch((error)=>{
@@ -220,42 +201,26 @@ export class RoleDetailComponent extends Component{
   includesTask = (task) =>{
       return this.state.viewedRole.tasks.filter( t=> t._id == task._id ).length > 0
   }
-    /**
-     * This method creates a new role
-     */
-    createRole = async ()=>{
-        const {createRoleForm, allRoles} = this.state; 
-        let isSaving = true;
-        let saveMsg = 'Saving';
-        this.setState({isSaving, saveMsg})
-        this.appMainService.createRole(createRoleForm).then(
-            (roleData)=>{
-                isSaving = false;
-                saveMsg = 'Save';
-                allRoles.unshift(roleData)
-                this.setState({ allRoles, isSaving, saveMsg })
-                const successNotification = {
-                    type:'success',
-                    msg:`${roleData.name} successfully created!`
-                }
-                new AppNotification(successNotification)
-                this.toggleModal();
-                this.resetForm();
-                
-            }
-        ).catch(
-            (error)=>{
-                isSaving = false;
-                saveMsg = 'Save';
-                this.setState({ isSaving, saveMsg })
-                const errorNotification = {
-                    type:'error',
-                    msg:utils.processErrors(error)
-                }
-                new AppNotification(errorNotification)
-        })
-    }
 
+  checkorUncheckAll = () => {
+    let {allTasks, viewedRole, allChecked} = this.state;
+    let {tasks} = viewedRole;
+
+    if(!allChecked){
+        allTasks.forEach(t =>{
+            if(!this.includesTask(t)){
+                tasks.push(t)
+            }   
+        })
+    }else{
+        tasks = [];
+    }
+    allChecked = !allChecked;
+    viewedRole['tasks'] = tasks;
+    this.setState({viewedRole, allChecked});
+
+  }
+    
 
     /**
      * This method updates a new role
@@ -290,51 +255,9 @@ export class RoleDetailComponent extends Component{
     }
 
 
-    /**
-     * 
-     * @param {*} modalName 
-     * This method toggles a modal
-     */
-    toggleModal = (modalName='create')=> {
-        let {showEditModal, showCreateModal } = this.state;
-        if(modalName == 'create'){
-            showCreateModal = !showCreateModal;
-        }else if(modalName == 'edit'){
-            showEditModal = !showEditModal
-        }
-        
-        this.setState({ showEditModal, showCreateModal })
-    }
+  
 
 
-
-    /**
-     * 
-     * This method sets the role to be edited
-     *  and opens the modal for edit
-     * 
-     */
-    editRole = (editedRole) => {
-        const updateRoleForm = {...editedRole}
-        const editedIndex = this.state.allRoles.findIndex(role => editedRole._id == role._id)
-        this.setState({editedRole, editedIndex, updateRoleForm});
-        this.toggleModal('edit')
-    }
-
-      /**
-     * 
-     * This method sets the role to be edited
-     *  and opens the modal for edit
-     * 
-     */
-    viewRole = (event, role) => {
-        event.preventDefault();
-        const newRoute = `/dashboard/roles/${role._id}`
-        this.setState({ navigate:true, newRoute })
-    
-    }
-
-   
 
     /**
      * 
@@ -485,252 +408,259 @@ export class RoleDetailComponent extends Component{
                     <div className="col-md-12 mb-4">
                         <div className="cardx text-left">
                             <div className="card-bodyx">
-                                <Tab.Container id="left-tabs-example" defaultActiveKey="general">
-                                <Nav variant="pills" className="d-flex  px-2">
-                                    <Nav.Item className="mr-2 flex-grow-1 text-center">
-                                    <Nav.Link eventKey="general">Role Information</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item className="mr-2 flex-grow-1 text-center">
-                                    <Nav.Link eventKey="permissions">Permissions</Nav.Link>
-                                    </Nav.Item>
-                            
-                                </Nav>
-                                <Tab.Content>
-                                    <Tab.Pane eventKey="general">
-
-                                        <div className="mt-2">
-
-                                        <div className="row">
-                                        <div className="col-md-4 border-right">
-
-                                            <div className="card ">
-                                                <div className="card-header">
-                                                        <h4 className="card-titlex">
-                                                        <Badge className={`badge-round-${this.state.viewedRole?.status ? 'success':'danger'}  m-1`}>
-                                                                {
-                                                                    this.state.viewedRole?.status ? (<span>&#x2713;</span>):  (<span>&#x21;</span>)
-                                                                }
-                                                            </Badge>
-                                                            General
-                                                            </h4>
-                                                </div>  
-                                                
-                                                <div className="card-body">
-                                                <p>
-                                                {this.state.viewedRole?.description}
-                                                </p>
-                                                <ul className="list-group list-group-flush">
-                                                <li className="list-group-item"><b>Name: </b>{this.state.viewedRole?.name}</li>
-                                                <li className="list-group-item"><b>No of members: </b>{'5'}</li>
-                                                <li className="list-group-item">
-                                                    <b>Status: </b>
-                                                    <span className={this.state.viewedRole?.status ? 'text-success':'text-danger'}>
-                                                    {this.state.viewedRole?.status ? 'Enabled':'Disabled'}
-                                                    </span>
-                                                
-                                                </li>
-                                                <li className="list-group-item"><b>Date Created: </b>{utils.formatDate(this.state.viewedRole?.created_at)}</li>
-                                                <li className="list-group-item"><b>Date Updated: </b>{utils.formatDate(this.state.viewedRole?.updated_at)}</li>
-                                                </ul>
-                                                </div>
-                                            
-                                            </div>
-                                       
-                                            
-                                            
-                                        </div>
-
-                                        <div className="col-md-8">
-                                        <div className="card ">
-                                                <div className="card-header">
-                                                        <h4 className="card-titlex"><b>{this.state.viewedRole?.name}</b> members</h4>
-                                                </div>  
-                                                
-                                                <div className="card-body">
-                                                <div className="table-responsive">
-                      <table id="user_table" className="table  text-center">
-                        <thead>
-                          <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Avatar</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {this.state.roleMembers.map((user, index) => (
-                            <tr key={index}>
-                              <th scope="row">{index + 1}</th>
-                              <td>{user.name}</td>
-                              <td>
-                                <img
-                                  className="rounded-circle m-0 avatar-sm-table "
-                                  src={user.photoUrl}
-                                  alt=""
-                                />
-                              </td>
-
-                              <td>{user.email}</td>
-                              <td>
-                                <span
-                                  className={`badge ${this.getUserStatusClass(
-                                    user.status
-                                  )}`}
-                                >
-                                  {user.status}
-                                </span>
-                              </td>
-                              <td>
-                                <span className="cursor-pointer text-success mr-2">
-                                  <i className="nav-icon i-Pen-2 font-weight-bold"></i>
-                                </span>
-                                <span className="cursor-pointer text-danger mr-2">
-                                  <i className="nav-icon i-Close-Window font-weight-bold"></i>
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  
-                                                </div>
-                                            
-                                            </div>
-                                        </div>
-                                    </div>
-         
 
 
-                                        </div>
-                                
-                                    </Tab.Pane>
-                                    <Tab.Pane eventKey="permissions">
+                            <Tabs defaultActiveKey="role_information" id="uncontrolled-tab-example">
+                                            <Tab
+                                                eventKey="role_information"
+                                                title={this.customTabHeader("Role information", "i-Atom")}
+                                            >
+                                                                    <div className="mt-2">
 
-                                    <div className="card ">
-                                                <div className="card-header card-title mb-0 d-flex align-items-center justify-content-between border-0">
-                        
-                                                        <h3 className="w-50 float-left card-title m-0"><i className="i-Gears"></i> <b>{this.state.viewedRole?.name}</b> permissions</h3>
+                                                <div className="row">
+                                                <div className="col-md-4 border-right">
 
-                                                        <div className='float-right'>
-                                                             {/* <Button  variant="secondary_custom" className="ripple m-1 text-capitalize" onClick={ ()=>{ this.toggleModal('create')} }><i className='i-Add'></i> Create Role</Button> */}
+                                                    <div className="card ">
+                                                        <div className="card-header">
+                                                                <h4 className="card-titlex">
+                                                                <Badge className={`badge-round-${this.state.viewedRole?.status ? 'success':'danger'}  m-1`}>
+                                                                        {
+                                                                            this.state.viewedRole?.status ? (<span>&#x2713;</span>):  (<span>&#x21;</span>)
+                                                                        }
+                                                                    </Badge>
+                                                                    General
+                                                                    </h4>
+                                                        </div>  
                                                         
-                                                             <LaddaButton
-                                                                    className={`btn btn-${true ? 'success':'info_custom'} border-0 mr-2 mb-2 position-relative`}
-                                                                    loading={this.state.isSaving}
-                                                                    progress={0.5}
-                                                                    type='button'
-                                                                    data-style={EXPAND_RIGHT}
-                                                                    onClick = {this.savePermissions}>
-                                                                 {this.state.updateMsg} Permissions
-                                                            </LaddaButton>
-                                                         </div>
-
-
-                                                </div>  
-                                                
-                                                <div className="card-body">
-                                                <div className="table-responsive">
-                                    <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
-                                        <thead>
-                                            <tr className="ul-widget6__tr--sticky-th">
-                                                <th>#</th>
-                                                <th>Name</th>
-                                                <th>Module</th>
-                                                <th>Date Created</th>
-                                                <th>Date Updated</th>                                              
-                                                <th>
-                                                    <div className="form-inline">
-                                                    Select &nbsp; <b>|</b> &nbsp; <Form.Check
-                                                                        name="checkbox2"
-                                                                        onChange={()=>{
-                                                                        alert('Clciked')
-                                                                        }}
-                                                                        value="check321"
-                                                                        checked={true}
-                                                                        type="checkbox"
-                                                                        id="check2"
-                                                                        label="Check all"
-                                                                        />
-                                                    </div>
+                                                        <div className="card-body">
+                                                        <p>
+                                                        {this.state.viewedRole?.description}
+                                                        </p>
+                                                        <ul className="list-group list-group-flush">
+                                                        <li className="list-group-item"><b>Name: </b>{this.state.viewedRole?.name}</li>
+                                                        <li className="list-group-item"><b>No of members: </b>{'5'}</li>
+                                                        <li className="list-group-item">
+                                                            <b>Status: </b>
+                                                            <span className={this.state.viewedRole?.status ? 'text-success':'text-danger'}>
+                                                            {this.state.viewedRole?.status ? 'Enabled':'Disabled'}
+                                                            </span>
+                                                        
+                                                        </li>
+                                                        <li className="list-group-item"><b>Date Created: </b>{utils.formatDate(this.state.viewedRole?.created_at)}</li>
+                                                        <li className="list-group-item"><b>Date Updated: </b>{utils.formatDate(this.state.viewedRole?.updated_at)}</li>
+                                                        </ul>
+                                                        </div>
                                                     
-                                                   
-                                                     </th>                                              
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        {
-                                          this.state.allTasks.length ?  this.state.allTasks.map( (task, index)=>{
-                                                return (
-                                                    <tr key={task._id} className={task.temp_flash ? 'bg-success text-white':''}>
-                                                        <td>
-                                                            <b>{index+1}</b>.
-                                                        </td>
-                                                        <td>
-                                                            {this.formatTaskName(task?.name)}
-                                                        </td>
-                                                        <td>
-                                                        {utils.toTiltle(task?.module_name)}
-                                                        </td>
-                                                        <td>
-                                                        {utils.formatDate(task.created_at)}
-                                                        </td>
-                                                        <td>
-                                                        {utils.formatDate(task.updated_at)}
-                                                        </td>
+                                                    </div>
 
-                                                        <td>
-                                                        <Form.Check
-                                                                        name="checkbox2"
-                                                                        onChange={()=>{
-                                                                        this.addPermission(task)
-                                                                        }}
-                                                                        value="check321"
-                                                                        checked={this.includesTask(task)}
-                                                                        type="checkbox"
-                                                                        id={`check2${task._id}`}
-                                                                        label=""
-                                                                        />
-                                                              
-                                                        </td>
-                                                 
-                                                    </tr>
-                                                ) 
-                                                
-                                              
-                                            }) :
-                                            (
-                                                <tr>
-                                                    <td className='text-center' colSpan='6'>
-                                                    <FetchingRecords isFetching={this.state.isFetching}/>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        }
-                                        
-                                        </tbody>
-                                     
-                                        <tfoot>
-                                            <tr>
-                                           <td colSpan='7'>
-
-                                           </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
+                                                    
+                                                    
                                                 </div>
+
+                                                <div className="col-md-8">
+                                                <div className="card ">
+                                                        <div className="card-header">
+                                                                <h4 className="card-titlex"><b>{this.state.viewedRole?.name}</b> members</h4>
+                                                        </div>  
+                                                        
+                                                        <div className="card-body">
+                                                        <div className="table-responsive">
+                                                <table id="user_table" className="table  text-center">
+                                                <thead>
+                                                <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Avatar</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {this.state.roleMembers.map((user, index) => (
+                                                <tr key={index}>
+                                                <th scope="row">{index + 1}</th>
+                                                <td>{user.name}</td>
+                                                <td>
+                                                <img
+                                                className="rounded-circle m-0 avatar-sm-table "
+                                                src={user.photoUrl}
+                                                alt=""
+                                                />
+                                                </td>
+
+                                                <td>{user.email}</td>
+                                                <td>
+                                                <span
+                                                className={`badge ${this.getUserStatusClass(
+                                                user.status
+                                                )}`}
+                                                >
+                                                {user.status}
+                                                </span>
+                                                </td>
+                                                <td>
+                                                <span className="cursor-pointer text-success mr-2">
+                                                <i className="nav-icon i-Pen-2 font-weight-bold"></i>
+                                                </span>
+                                                <span className="cursor-pointer text-danger mr-2">
+                                                <i className="nav-icon i-Close-Window font-weight-bold"></i>
+                                                </span>
+                                                </td>
+                                                </tr>
+                                                ))}
+                                                </tbody>
+                                                </table>
+                                                </div>
+
+                                                        </div>
+                                                    
+                                                    </div>
+                                                </div>
+                                                </div>
+
+
+
+                                                </div>
+
+                                            </Tab>
+                                            <Tab
+                                                eventKey="permissions"
+                                                title={this.customTabHeader("Configure permissions", "i-Gear-2")}
+                                            >
+                                                <div className="card ">
+                                                                            <div className="card-header card-title mb-0 d-flex align-items-center justify-content-between border-0">
+                                                    
+                                                                                    <h3 className="w-50 float-left card-title m-0"><i className="i-Gears"></i> <b>{this.state.viewedRole?.name}</b> permissions</h3>
+
+                                                                                    <div className='float-right'>
+                                                                                        {/* <Button  variant="secondary_custom" className="ripple m-1 text-capitalize" onClick={ ()=>{ this.toggleModal('create')} }><i className='i-Add'></i> Create Role</Button> */}
+                                                                                    
+                                                                                        <LaddaButton
+                                                                                                className={`btn btn-${true ? 'success':'info_custom'} border-0 mr-2 mb-2 position-relative`}
+                                                                                                loading={this.state.isSaving}
+                                                                                                progress={0.5}
+                                                                                                type='button'
+                                                                                                data-style={EXPAND_RIGHT}
+                                                                                                onClick = {this.savePermissions}>
+                                                                                            {this.state.updateMsg} Permissions
+                                                                                        </LaddaButton>
+                                                                                    </div>
+
+
+                                                                            </div>  
+                                                                            
+                                                                            <div className="card-body">
+                                                                            <div className="table-responsive">
+                                                                <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
+                                                                    <thead>
+                                                                        <tr className="ul-widget6__tr--sticky-th">
+                                                                            <th>#</th>
+                                                                            <th>Name</th>
+                                                                            <th>Module</th>
+                                                                            <th>Date Created</th>
+                                                                            <th>Date Updated</th>                                              
+                                                                            <th>
+                                                                                <div className="form-inline" style={{cursor:"pointer !important"}}>
+                                                                                Select &nbsp; <b>|</b> &nbsp; <Form.Check
+                                                                                                    name="check_uncheck"
+                                                                                                    
+                                                                                                    onChange={this.checkorUncheckAll}
+                                                                                                    value=""
+                                                                                                    checked={this.state.allChecked}
+                                                                                                    type="checkbox"
+                                                                                                    id="check_uncheck"
+                                                                                                    className={`text-${this.state.allChecked ? 'danger':'success'}`}
+                                                                                                    label={this.state.allChecked ?'uncheck all':'check all'}
+                                                                                                    />
+                                                                                </div>
+                                                                                
+                                                                            
+                                                                                </th>                                              
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    {
+                                                                    this.state.allTasks.length ?  this.state.allTasks.map( (task, index)=>{
+                                                                            return (
+                                                                                <tr key={task._id} className={task.temp_flash ? 'bg-success text-white':''}>
+                                                                                    <td>
+                                                                                        <b>{index+1}</b>.
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {this.formatTaskName(task?.name)} &nbsp;
+
+                                                                                        {
+                                                                                            this.includesTask(task) ? (
+                                                                                                <Badge  pill variant="success" className="m-1">
+                                                                                                    assigned
+                                                                                                </Badge>
+                                                                                            ): null
+                                                                                        }
+
+                                                                                        
+                                                                                    </td>
+                                                                                    <td>
+                                                                                    {utils.toTiltle(task?.module_name)}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                    {utils.formatDate(task.created_at)}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                    {utils.formatDate(task.updated_at)}
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                    <Form.Check
+                                                                                                    name="checkbox3"
+                                                                                                    key={`check2${task._id}`}
+                                                                                                    onChange={()=>{
+                                                                                                    this.addPermission(task)
+                                                                                                    }}
+                                                                                                    value=""
+                                                                                                    checked={this.includesTask(task)}
+                                                                                                    type="checkbox"
+                                                                                                    id={`check2${task._id}`}
+                                                                                                    label=""
+                                                                                                    />
+                                                                                        
+                                                                                    </td>
+                                                                            
+                                                                                </tr>
+                                                                            ) 
+                                                                            
+                                                                        
+                                                                        }) :
+                                                                        (
+                                                                            <tr>
+                                                                                <td className='text-center' colSpan='6'>
+                                                                                <FetchingRecords isFetching={this.state.isFetching}/>
+                                                                                </td>
+                                                                            </tr>
+                                                                        )
+                                                                    }
+                                                                    
+                                                                    </tbody>
+                                                                
+                                                                    <tfoot>
+                                                                        <tr>
+                                                                    <td colSpan='7'>
+
+                                                                    </td>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                                            </div>
+                                                                        
+                                                                        </div>
+
+
+                                            </Tab>
                                             
-                                            </div>
+                            </Tabs>
 
-
-                                    </Tab.Pane>
-                                </Tab.Content>
-                                </Tab.Container>
-                         
-           
+                               
                             </div>
                                 
                             </div>
@@ -751,16 +681,6 @@ export class RoleDetailComponent extends Component{
         
     }
 
-createRoleSchema = yup.object().shape({
-        name: yup.string().required("Name is required"),
-        description: yup.string().required("Description is required"),
-      });
-
-
-updateRoleSchema = yup.object().shape({
-        name: yup.string().required("Name is required"),
-        description: yup.string().required("Description is required"),
-        });
 
 }
 
