@@ -13,6 +13,7 @@ const BasicModal = ({ name, ...props }) => {
       <Button className="text-capitalize" onClick={() => setShow(true)}>
         {name || "Launch demo modal"}
       </Button>
+    
       <Modal show={show} onHide={handleClose} {...props}>
         <Modal.Header closeButton>
           <Modal.Title>Modal heading</Modal.Title>
@@ -34,6 +35,7 @@ const BasicModal = ({ name, ...props }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+   
     </Fragment>
   );
 };

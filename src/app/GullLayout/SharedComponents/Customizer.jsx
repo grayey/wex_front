@@ -70,6 +70,7 @@ class Customizer extends Component {
       })
     );
   };
+
   handleDirectionChange = event => {
     let { settings, setLayoutSettings } = this.props;
     let dir = settings.dir === "rtl" ? "ltr" : "rtl";
@@ -80,6 +81,8 @@ class Customizer extends Component {
       })
     );
   };
+
+  
   changeSidebarColor = colorClass => {
     let { settings, setLayoutSettings } = this.props;
     setLayoutSettings(

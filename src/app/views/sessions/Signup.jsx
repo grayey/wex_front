@@ -22,11 +22,13 @@ class Signup extends Component {
       <div
         className="auth-layout-wrap"
         style={{
-          backgroundImage: "url(/assets/images/photo-wide-4.jpg)"
+          // backgroundImage: "url(/assets/images/photo-wide-4.jpg)"
+          backgroundColor:"transparent !important"
+
         }}
       >
         <div className="auth-content">
-          <div className="card o-hidden">
+          <div className={`${this.props?.public ? "cardx" : "card"} o-hidden`} >
             <div className="row">
               <div
                 className="col-md-6 text-center "

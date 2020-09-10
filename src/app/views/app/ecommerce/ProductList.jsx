@@ -238,6 +238,7 @@ class ProductList extends Component {
             activeClassName={"active"}
           />
         </section>
+    
       </div>
     );
   }

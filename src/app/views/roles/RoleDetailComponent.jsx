@@ -199,7 +199,7 @@ export class RoleDetailComponent extends Component{
   }
 
   includesTask = (task) =>{
-      return this.state.viewedRole.tasks.filter( t=> t._id == task._id ).length > 0
+      return this.state?.viewedRole?.tasks?.filter( t=> t._id == task._id ).length > 0
   }
 
   checkorUncheckAll = () => {
@@ -438,7 +438,7 @@ export class RoleDetailComponent extends Component{
                                                         </p>
                                                         <ul className="list-group list-group-flush">
                                                         <li className="list-group-item"><b>Name: </b>{this.state.viewedRole?.name}</li>
-                                                        <li className="list-group-item"><b>No of members: </b>{'5'}</li>
+                                                        <li className="list-group-item"><b>No. of members: </b>{this.state.viewedRole?.users?.length}</li>
                                                         <li className="list-group-item">
                                                             <b>Status: </b>
                                                             <span className={this.state.viewedRole?.status ? 'text-success':'text-danger'}>
@@ -464,57 +464,82 @@ export class RoleDetailComponent extends Component{
                                                         </div>  
                                                         
                                                         <div className="card-body">
+                                                          
                                                         <div className="table-responsive">
+                                                        <div style={{"maxHeight":"270px", "overflowY":"scroll"}}>
                                                 <table id="user_table" className="table  text-center">
-                                                <thead>
-                                                <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col">Name</th>
-                                                <th scope="col">Avatar</th>
-                                                <th scope="col">Email</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Action</th>
-                                                </tr>
-                                                </thead>
+                                                    <thead>
+                                                    <tr className="ul-widget6__tr--sticky-th">
+                                                    <th>#</th>
+                                                    <th>Full Name</th>
+                                                    
+                                                    <th>Email</th>
+                                                    <th>Phone No.</th>
+                                                    
+                                                    <th>Status</th>
+                                                    <th>Date Created</th>
+                                                    
+                                                
+                                                    </tr>
+                                                    </thead>
                                                 <tbody>
-                                                {this.state.roleMembers.map((user, index) => (
-                                                <tr key={index}>
-                                                <th scope="row">{index + 1}</th>
-                                                <td>{user.name}</td>
-                                                <td>
-                                                <img
-                                                className="rounded-circle m-0 avatar-sm-table "
-                                                src={user.photoUrl}
-                                                alt=""
-                                                />
-                                                </td>
+                                                {
+                                          this.state?.viewedRole?.users?.length ?  this.state?.viewedRole?.users?.map( (user, index)=>{
+                                                return (
+                                                    <tr key={user._id} className={user.temp_flash ? 'bg-success text-white':''}>
+                                                        <td>
+                                                            <b>{index+1}</b>.
+                                                        </td>
+                                                        <td>
+                                                            <Link  key={user._id} to={`/dashboard/users/${user._id}}`} onClick={
+                                                                (event)=>{
+                                                                    this.viewUser(event, user)
+                                                                }
+                                                            }>
+                                                            {user.full_name}
+                                                            </Link>
+                                                           
+                                                        </td>
+                                                      
+                                                        <td>
+                                                        {user.email}
+                                                        </td>
+                                                        <td>
+                                                        {user.phone_no}
+                                                        </td>
+                                                       
+                                                        <td>
+                                                        
+                                                        <span className={user.status ? 'text-success' : 'text-danger'}>
+                                                            {user.status ? 'Enabled' : 'Disabled'}
+                                                            </span>
+                                                        </td>
 
-                                                <td>{user.email}</td>
-                                                <td>
-                                                <span
-                                                className={`badge ${this.getUserStatusClass(
-                                                user.status
-                                                )}`}
-                                                >
-                                                {user.status}
-                                                </span>
-                                                </td>
-                                                <td>
-                                                <span className="cursor-pointer text-success mr-2">
-                                                <i className="nav-icon i-Pen-2 font-weight-bold"></i>
-                                                </span>
-                                                <span className="cursor-pointer text-danger mr-2">
-                                                <i className="nav-icon i-Close-Window font-weight-bold"></i>
-                                                </span>
-                                                </td>
+                                                        <td>
+                                                        {utils.formatDate(user.created_at)}
+                                                        </td>
+                                                      
+                                                        
+                                                    
+                                                    </tr>
+                                                ) 
+                                                
+                                              
+                                            }) :
+                                            (
+                                                <tr>
+                                                    <td className='text-center' colSpan='11'>
+                                                    <FetchingRecords isFetching={this.state.isFetching}/>
+                                                    </td>
                                                 </tr>
-                                                ))}
+                                            )
+                                        }
                                                 </tbody>
                                                 </table>
                                                 </div>
 
                                                         </div>
-                                                    
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 </div>
@@ -552,7 +577,10 @@ export class RoleDetailComponent extends Component{
                                                                             
                                                                             <div className="card-body">
                                                                             <div className="table-responsive">
-                                                                <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
+                                                                            <div> 
+                                                                            {/*  style={{"maxHeight":"500px", "overflowY":"scroll"}} */}
+                                                                            
+                                                                                     <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
                                                                     <thead>
                                                                         <tr className="ul-widget6__tr--sticky-th">
                                                                             <th>#</th>
@@ -650,9 +678,9 @@ export class RoleDetailComponent extends Component{
                                                                         </tr>
                                                                     </tfoot>
                                                                 </table>
-                                                            </div>
+                                                                                  </div>
                                                                             </div>
-                                                                        
+                                                                        </div>
                                                                         </div>
 
 

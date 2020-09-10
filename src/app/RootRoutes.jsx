@@ -23,13 +23,15 @@ import rolesRoutes from "./views/roles/rolesRoutes";
 import tasksRoutes from "./views/tasks/tasksRoutes";
 import usersRoutes from "./views/users/usersRoutes";
 
+
 const redirectRoute = [
   {
-    path: "/",
+    path: "/xx",
     exact: true,
     component: () => <Redirect to="/dashboard/v1" />
   }
 ];
+
 
 const errorRoute = [
   {

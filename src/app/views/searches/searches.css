@@ -1,0 +1,377 @@
+/***
+  LANDING PAGE SEARCH SECTION
+
+**/
+
+
+.css-yk16xz-control {
+
+
+    border-width: 0px !important;
+    outline:0 !important; /* I have also tried outline:none */
+    -webkit-appearance:none !important;
+    box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  
+      -webkit-align-items: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      background-color: hsl(0,0%,100%);
+      /* border-color: hsl(0,0%,80%); */
+      /* border-radius: 4px;
+      border-style: solid;
+      border-width: 1px; */
+      cursor: default;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+      -webkit-box-pack: justify;
+      -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      min-height: 38px;
+      outline: 0 !important;
+      position: relative;
+      -webkit-transition: all 100ms;
+      transition: all 100ms;
+      box-sizing: border-box;
+  }
+  
+  .css-1pahdxg-control{
+    
+    border-width: 0px !important;
+    outline:0 !important; /* I have also tried outline:none */
+    -webkit-appearance:none !important;
+    box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+  
+  .css-tlfecz-indicatorContainer{
+  
+    display: none !important;
+  }
+  
+  
+  .css-1okebmr-indicatorSeparator {
+    -webkit-align-self: stretch;
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+    /* background-color: hsl(0,0%,80%);
+    margin-bottom: 8px;
+    margin-top: 8px;
+    width: 1px;
+    box-sizing: border-box; */
+    display: none !important;
+  }
+  
+  .app-search svg{
+    display: none !important;
+  }
+  
+  
+  ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: darkgray !important;
+    font-size: 12px;
+  }
+  ::-moz-placeholder { /* Firefox 19+ */
+    color: darkgray !important;
+    font-size: 12px;
+  
+  
+  }
+  :-ms-input-placeholder { /* IE 10+ */
+    color: darkgray !important;
+    font-size: 12px;
+  
+  
+  }
+  :-moz-placeholder { /* Firefox 18- */
+    color: darkgray !important;
+    font-size: 12px;
+  }
+  
+  .category_list{
+    font-size: 12px !important;
+    cursor: pointer !important;
+  }
+
+  /** APP SEARCH BOX **/
+
+  .app-search{
+    position: absolute;
+    top: 32em !important;
+    /* padding: 10px 100px; */
+   /* right:12rem; */
+
+    width:100% !important;
+  }
+  
+  .app-search .card{
+    border:1px solid darkgray;
+  
+  }
+ 
+.search-field :hover{
+    cursor: pointer !important;
+    }
+    
+/* .app-search .col-md-4:hover, .col-md-3:hover{
+      border: 2px solid lightgray;
+      border-radius: 10px;
+    }
+     */
+    
+    
+    .search-field{
+      /* border-right-width: 2px !important; */
+      border-right:1px solid lightgray;
+    }
+    
+  
+  .app-search .form-control{
+    background-color: white;
+    /* height:4rem; */
+    font-size: 12px;
+    caret-color: green;
+    /* margin-top: 5px; */
+    /* border:black; */
+    border: none !important;
+  }
+  
+  .active_field{
+    border-color: black !important;
+    border-right-width: 3px !important;
+    
+    /* border-radius: 3px; */
+  }
+
+  .no-right{
+      /* border-right-width: 0px !important; */
+  }
+
+.main-sub-container{
+    border-left: 4px solid #1E9AF7;
+    padding-left: 20px;
+    border-top-left-radius: 2px; 
+     border-top-right-radius: 2px;
+
+  }
+
+  
+  .app-search label{
+    margin-top: 5px;
+    font-size:16px;
+    /* font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',; */
+  }
+
+  .app-search .form-control:focus {
+
+    border-width: 0px !important;
+    outline:0 !important; /* I have also tried outline:none */
+    -webkit-appearance:none !important;
+    box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+   
+  }
+
+  .search-field{
+    /* border-right-width: 2px !important; */
+    /* border-right:1px solid lightgray; */
+  }
+  
+  
+
+
+.weather-card-1 {
+
+    background-position-y: center;
+    background-size: cover;
+}
+
+.ul-weather-card__vid-overlay{
+  position: relative;
+  right: 0;
+  /* bottom: 0; */
+  min-width: 100%;
+  min-height: 50%;
+      
+}
+
+video {
+    object-fit: cover !important;
+}
+/* .css-2613qy-menu{
+    background-color: tomato;
+} */
+
+.poster-content {
+  position: absolute;
+  /* bottom: 0; */
+  top: 12%;
+  /* background: rgba(0, 0, 0, 0.5); */
+  background: transparent !important;
+  color: #f1f1f1;
+  width: 100%;
+  padding: 50px;
+  font-weight: 600;
+  font-family: objektiv-mk2, sans-serif, 'Avenir Next W02','Avenir Next','Proxima Nova','Myriad Pro',Helvetica,Calibri,sans-serif;
+    font-size: 1.6rem;
+    line-height: 1.6em;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -moz-font-feature-settings: "liga" on;
+}
+.main-header.top-nav{
+  box-shadow: 0 7px 7px 0 rgba(0, 0, 0, 0.18);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    background-color: #eaf0f3;
+  
+    z-index: 10;
+}
+
+.main-subheader1 {
+    margin-top: 0;
+    margin-bottom: 0px;
+    text-rendering: optimizeLegibility;
+    font-size: 20px;
+    color: #FFFFFF;
+    line-height: 30px;
+    font-weight: 600;
+  }
+
+  .main-subheader2 {
+    margin-top: 0;
+    margin-bottom: 0px;
+    text-rendering: optimizeLegibility;
+    font-size: 16px;
+    color: #FFFFFF;
+    line-height: 30px;
+    font-weight: 400;
+  }
+
+  .search_btn{
+      /* padding: 20px; */
+      background: #1E9AF7;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #FFFFFF;
+    padding: 11px 15px 12px 15px !important;
+  }
+
+  
+  
+.primary-btn-small {
+  background: #1E9AF7;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #FFFFFF;
+  padding: 7px 27px 8px 27px;
+}
+
+.primary-btn-small:hover {
+  text-decoration: none;
+}
+
+.white-outline.secondary-btn-small {
+  background: #fff;
+  font-size: 14px;
+  padding: 5px 26px 6px 28px;
+}
+
+.secondary-btn-small {
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #133247;
+  border: 2px solid #1E9AF7;
+  padding: 7px 26px 4px 27px;
+  background: #fff;
+}
+
+.secondary-btn-small:hover {
+  text-decoration: none;
+}
+
+.invite{
+  font-size: 14px;
+    color: #030303;
+    padding: 0;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+}
+
+
+@media screen and (max-width: 1190px) {
+
+  .header-part-right {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 85px;
+    background: #fff;
+    z-index: 5;
+    padding: 20px;
+    width: 100%;
+    margin-right: 0;
+
+}
+
+}
+
+.public_viewx{
+  
+    font-family: objektiv-mk2, sans-serif, 'Avenir Next W02','Avenir Next','Proxima Nova','Myriad Pro',Helvetica,Calibri,sans-serif;
+    font-size: 1.6rem;
+    line-height: 1.6em;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 0;
+    text-rendering: optimizeLegibility;
+    background: #fff;
+    padding-top: 76px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -moz-font-feature-settings: "liga" on;
+
+}
+
+.btn-group .button {
+  border-radius: 0;
+}
+.btn-group .button:first-child {
+    border-radius: 6px 0 0 6px;
+}
+.btn-group .button:last-child {
+    border-radius: 0 6px 6px 0;
+    margin-left: -1px;
+}
+
+
+.auth-layout-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  background-size: cover;
+}
+
+.bg_public{
+  background-color: #EAF0F3;
+}

@@ -165,7 +165,7 @@ export function initCodeViewer() {
 
 export function formatDate(date){
 
-  return moment(date).format('Do MMM, YYYY')
+  return moment(date).format('MMM D, YYYY')
     
 }
 

@@ -9,6 +9,8 @@ import * as yup from "yup";
 import AppNotification from "../../appNotifications";
 import {FetchingRecords} from "../../appWidgets";
 import { Link, Redirect } from "react-router-dom";
+import { Breadcrumb } from "@gull";
+
 // import queryString from 'query-string';
 
 
@@ -23,12 +25,12 @@ import LaddaButton, {
   } from "react-ladda";
 import { toLength } from "lodash";
 
-export class RoleDetailComponent extends Component{
+export class UserDetailComponent extends Component{
 
     state = {
 
         userSlug:"",
-        viewedRole:{},
+        viewedUser:{},
         allChecked:false,
         navigate: false,
         newRoute:"",
@@ -82,8 +84,7 @@ export class RoleDetailComponent extends Component{
         const params = this.props.match.params;
         const userSlug = params.slug;
         console.log('Params', params)
-         this.getRoleBySlug(userSlug);
-         this.getAllTasks();
+         this.getUserBySlug(userSlug);
     }
 
  customTabHeader = (title, icon) => (
@@ -102,8 +103,8 @@ export class RoleDetailComponent extends Component{
      * This method saves the permissions for a user
      */
     addPermission = (task) =>{
-        let {viewedRole,allChecked} = this.state;
-        const tasks = viewedRole['tasks'];
+        let {viewedUser,allChecked} = this.state;
+        const tasks = viewedUser['tasks'];
         const findTask = tasks.findIndex(t => t._id == task._id);
         if(findTask != -1){
             tasks.splice(findTask, 1) // remove
@@ -112,8 +113,8 @@ export class RoleDetailComponent extends Component{
             console.log('Tasks ', tasks)
         }
         allChecked = tasks?.length == this.state.allTasks.length && tasks.length 
-        viewedRole['tasks'] = tasks;
-        this.setState({viewedRole, allChecked})
+        viewedUser['tasks'] = tasks;
+        this.setState({viewedUser, allChecked})
     }
 
 
@@ -145,12 +146,12 @@ export class RoleDetailComponent extends Component{
     /**
      * This method gets a user by its slug
      */
-    getRoleBySlug = async (slug)=>{
+    getUserBySlug = async (slug)=>{
         let isFetching = false;
-       this.appMainService.getRoleBySlug(slug).then(
-           (viewedRole)=>{
-               this.setState({ viewedRole, isFetching })
-               console.log('Users viewed', viewedRole)
+       this.appMainService.getUserBySlug(slug).then(
+           (viewedUser)=>{
+               this.setState({ viewedUser, isFetching })
+               console.log('Users viewed', viewedUser)
            }
        ).catch((error)=>{
            this.setState({isFetching})
@@ -177,7 +178,7 @@ export class RoleDetailComponent extends Component{
                   return this.getAllTasks(true);
                    
                }
-               const allChecked = this.state?.viewedRole?.tasks?.length == allTasks.length && allTasks.length ;
+               const allChecked = this.state?.viewedUser?.tasks?.length == allTasks.length && allTasks.length ;
                
                this.setState({ allTasks, isFetching, allChecked })
                console.log('Tasks response', tasksResponse)
@@ -199,12 +200,12 @@ export class RoleDetailComponent extends Component{
   }
 
   includesTask = (task) =>{
-      return this.state.viewedRole.tasks.filter( t=> t._id == task._id ).length > 0
+      return this.state.viewedUser.tasks.filter( t=> t._id == task._id ).length > 0
   }
 
   checkorUncheckAll = () => {
-    let {allTasks, viewedRole, allChecked} = this.state;
-    let {tasks} = viewedRole;
+    let {allTasks, viewedUser, allChecked} = this.state;
+    let {tasks} = viewedUser;
 
     if(!allChecked){
         allTasks.forEach(t =>{
@@ -216,8 +217,8 @@ export class RoleDetailComponent extends Component{
         tasks = [];
     }
     allChecked = !allChecked;
-    viewedRole['tasks'] = tasks;
-    this.setState({viewedRole, allChecked});
+    viewedUser['tasks'] = tasks;
+    this.setState({viewedUser, allChecked});
 
   }
     
@@ -229,14 +230,14 @@ export class RoleDetailComponent extends Component{
         let isSaving = true;
         let updateMsg = 'Saving';
         this.setState({isSaving, updateMsg})
-        this.appMainService.updateRole(this.state.viewedRole, this.state.viewedRole._id).then(
-            (viewedRole)=>{
+        this.appMainService.updateUser(this.state.viewedUser, this.state.viewedUser._id).then(
+            (viewedUser)=>{
                 isSaving = false;
                 updateMsg = 'Save';
-                this.setState({ viewedRole, isSaving, updateMsg })
+                this.setState({ viewedUser, isSaving, updateMsg })
                 const successNotification = {
                     type:'success',
-                    msg:`Successfully updated ${viewedRole.name} permissions!`
+                    msg:`Successfully updated ${viewedUser.name} permissions!`
                 }
                 new AppNotification(successNotification)
                
@@ -264,7 +265,7 @@ export class RoleDetailComponent extends Component{
      * @param {*} user
      * This method toggles a user's status 
      */
-    toggleRole = (user)=>{
+    toggleUser = (user)=>{
         const toggleMsg = user.status? "Disable":"Enable";
         const gL = user.status? "lose":"gain"
        
@@ -286,13 +287,13 @@ export class RoleDetailComponent extends Component{
                 const toggleIndex = allUsers.findIndex(r => r._id == user._id)
                 // user.status = !user.status;
 
-              this.appMainService.toggleRole(user).then(
-                (toggledRole)=>{
-                    allUsers.splice(toggleIndex, 1, toggledRole)
+              this.appMainService.toggleUser(user).then(
+                (toggledUser)=>{
+                    allUsers.splice(toggleIndex, 1, toggledUser)
                     this.setState({ allUsers })
                     const successNotification = {
                         type:'success',
-                        msg:`${toggledRole.name} successfully ${toggleMsg}d!`
+                        msg:`${toggledUser.name} successfully ${toggleMsg}d!`
                     }
                     new AppNotification(successNotification)
                 }
@@ -314,7 +315,7 @@ export class RoleDetailComponent extends Component{
      * This method deletes a user
      * 
      */
-    deleteRole = (user)=>{
+    deleteUser = (user)=>{
          swal.fire({
                 title: `<small>Delete&nbsp;<b>${user.name}</b>?</small>`,
                 text: "You won't be able to revert this!",
@@ -329,8 +330,8 @@ export class RoleDetailComponent extends Component{
               .then(result => {
                 if (result.value) {
                 let { allUsers } = this.state
-                  this.appMainService.deleteRole(user).then(
-                    (deletedRole)=>{
+                  this.appMainService.deleteUser(user).then(
+                    (deletedUser)=>{
                         allUsers = allUsers.filter(r=> r._id !== user._id)
                         this.setState({ allUsers })
                         const successNotification = {
@@ -356,11 +357,11 @@ export class RoleDetailComponent extends Component{
      * @param {*} modalName 
      */
     resetForm = ()=> {
-        const createRoleForm = {
+        const createUserForm = {
             name: "",
             description: "",
           }
-          this.setState({createRoleForm})
+          this.setState({createUserForm})
 
     }
     getUserStatusClass = status => {
@@ -377,316 +378,606 @@ export class RoleDetailComponent extends Component{
       };
     
 
-    render(){
-
-        const { navigate, newRoute } = this.state;
-        if (navigate) {
-          return <Redirect to={newRoute} />
-        }
-        
+      render() {
         return (
-
-            <>
-                <div className="specific">
-        
-               
-                <div className='float-right'>
-                    {/* <Button  variant="secondary_custom" className="ripple m-1 text-capitalize" onClick={ ()=>{ this.toggleModal('create')} }><i className='i-Add'></i> Create Role</Button> */}
-                </div>
-        
-                <div className="breadcrumb">
-                    <h1>{this.state.viewedRole?.name}</h1>
-                    <ul>
-                        <li><a href="#">Detail</a></li>
-                        <li>View</li>
-                    </ul>
-                </div>
-              
-                <div className="separator-breadcrumb border-top"></div>
-                <div className="row mb-4">
-        
-                    <div className="col-md-12 mb-4">
-                        <div className="cardx text-left">
-                            <div className="card-bodyx">
-
-
-                            <Tabs defaultActiveKey="user_information" id="uncontrolled-tab-example">
-                                            <Tab
-                                                eventKey="user_information"
-                                                title={this.customTabHeader("Role information", "i-Atom")}
-                                            >
-                                                                    <div className="mt-2">
-
-                                                <div className="row">
-                                                <div className="col-md-4 border-right">
-
-                                                    <div className="card ">
-                                                        <div className="card-header">
-                                                                <h4 className="card-titlex">
-                                                                <Badge className={`badge-round-${this.state.viewedRole?.status ? 'success':'danger'}  m-1`}>
-                                                                        {
-                                                                            this.state.viewedRole?.status ? (<span>&#x2713;</span>):  (<span>&#x21;</span>)
-                                                                        }
-                                                                    </Badge>
-                                                                    General
-                                                                    </h4>
-                                                        </div>  
-                                                        
-                                                        <div className="card-body">
-                                                        <p>
-                                                        {this.state.viewedRole?.description}
-                                                        </p>
-                                                        <ul className="list-group list-group-flush">
-                                                        <li className="list-group-item"><b>Name: </b>{this.state.viewedRole?.name}</li>
-                                                        <li className="list-group-item"><b>No of members: </b>{'5'}</li>
-                                                        <li className="list-group-item">
-                                                            <b>Status: </b>
-                                                            <span className={this.state.viewedRole?.status ? 'text-success':'text-danger'}>
-                                                            {this.state.viewedRole?.status ? 'Enabled':'Disabled'}
-                                                            </span>
-                                                        
-                                                        </li>
-                                                        <li className="list-group-item"><b>Date Created: </b>{utils.formatDate(this.state.viewedRole?.created_at)}</li>
-                                                        <li className="list-group-item"><b>Date Updated: </b>{utils.formatDate(this.state.viewedRole?.updated_at)}</li>
-                                                        </ul>
-                                                        </div>
-                                                    
-                                                    </div>
-
-                                                    
-                                                    
-                                                </div>
-
-                                                <div className="col-md-8">
-                                                <div className="card ">
-                                                        <div className="card-header">
-                                                                <h4 className="card-titlex"><b>{this.state.viewedRole?.name}</b> members</h4>
-                                                        </div>  
-                                                        
-                                                        <div className="card-body">
-                                                        <div className="table-responsive">
-                                                <table id="user_table" className="table  text-center">
-                                                <thead>
-                                                <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col">Name</th>
-                                                <th scope="col">Avatar</th>
-                                                <th scope="col">Email</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Action</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {this.state.userMembers.map((user, index) => (
-                                                <tr key={index}>
-                                                <th scope="row">{index + 1}</th>
-                                                <td>{user.name}</td>
-                                                <td>
-                                                <img
-                                                className="rounded-circle m-0 avatar-sm-table "
-                                                src={user.photoUrl}
-                                                alt=""
-                                                />
-                                                </td>
-
-                                                <td>{user.email}</td>
-                                                <td>
-                                                <span
-                                                className={`badge ${this.getUserStatusClass(
-                                                user.status
-                                                )}`}
-                                                >
-                                                {user.status}
-                                                </span>
-                                                </td>
-                                                <td>
-                                                <span className="cursor-pointer text-success mr-2">
-                                                <i className="nav-icon i-Pen-2 font-weight-bold"></i>
-                                                </span>
-                                                <span className="cursor-pointer text-danger mr-2">
-                                                <i className="nav-icon i-Close-Window font-weight-bold"></i>
-                                                </span>
-                                                </td>
-                                                </tr>
-                                                ))}
-                                                </tbody>
-                                                </table>
-                                                </div>
-
-                                                        </div>
-                                                    
-                                                    </div>
-                                                </div>
-                                                </div>
-
-
-
-                                                </div>
-
-                                            </Tab>
-                                            <Tab
-                                                eventKey="permissions"
-                                                title={this.customTabHeader("Configure permissions", "i-Gear-2")}
-                                            >
-                                                <div className="card ">
-                                                                            <div className="card-header card-title mb-0 d-flex align-items-center justify-content-between border-0">
-                                                    
-                                                                                    <h3 className="w-50 float-left card-title m-0"><i className="i-Gears"></i> <b>{this.state.viewedRole?.name}</b> permissions</h3>
-
-                                                                                    <div className='float-right'>
-                                                                                        {/* <Button  variant="secondary_custom" className="ripple m-1 text-capitalize" onClick={ ()=>{ this.toggleModal('create')} }><i className='i-Add'></i> Create Role</Button> */}
-                                                                                    
-                                                                                        <LaddaButton
-                                                                                                className={`btn btn-${true ? 'success':'info_custom'} border-0 mr-2 mb-2 position-relative`}
-                                                                                                loading={this.state.isSaving}
-                                                                                                progress={0.5}
-                                                                                                type='button'
-                                                                                                data-style={EXPAND_RIGHT}
-                                                                                                onClick = {this.savePermissions}>
-                                                                                            {this.state.updateMsg} Permissions
-                                                                                        </LaddaButton>
-                                                                                    </div>
-
-
-                                                                            </div>  
-                                                                            
-                                                                            <div className="card-body">
-                                                                            <div className="table-responsive">
-                                                                <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
-                                                                    <thead>
-                                                                        <tr className="ul-widget6__tr--sticky-th">
-                                                                            <th>#</th>
-                                                                            <th>Name</th>
-                                                                            <th>Module</th>
-                                                                            <th>Date Created</th>
-                                                                            <th>Date Updated</th>                                              
-                                                                            <th>
-                                                                                <div className="form-inline" style={{cursor:"pointer !important"}}>
-                                                                                Select &nbsp; <b>|</b> &nbsp; <Form.Check
-                                                                                                    name="check_uncheck"
-                                                                                                    
-                                                                                                    onChange={this.checkorUncheckAll}
-                                                                                                    value=""
-                                                                                                    checked={this.state.allChecked}
-                                                                                                    type="checkbox"
-                                                                                                    id="check_uncheck"
-                                                                                                    className={`text-${this.state.allChecked ? 'danger':'success'}`}
-                                                                                                    label={this.state.allChecked ?'uncheck all':'check all'}
-                                                                                                    />
-                                                                                </div>
-                                                                                
-                                                                            
-                                                                                </th>                                              
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                    {
-                                                                    this.state.allTasks.length ?  this.state.allTasks.map( (task, index)=>{
-                                                                            return (
-                                                                                <tr key={task._id} className={task.temp_flash ? 'bg-success text-white':''}>
-                                                                                    <td>
-                                                                                        <b>{index+1}</b>.
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        {this.formatTaskName(task?.name)} &nbsp;
-
-                                                                                        {
-                                                                                            this.includesTask(task) ? (
-                                                                                                <Badge  pill variant="success" className="m-1">
-                                                                                                    assigned
-                                                                                                </Badge>
-                                                                                            ): null
-                                                                                        }
-
-                                                                                        
-                                                                                    </td>
-                                                                                    <td>
-                                                                                    {utils.toTiltle(task?.module_name)}
-                                                                                    </td>
-                                                                                    <td>
-                                                                                    {utils.formatDate(task.created_at)}
-                                                                                    </td>
-                                                                                    <td>
-                                                                                    {utils.formatDate(task.updated_at)}
-                                                                                    </td>
-
-                                                                                    <td>
-                                                                                    <Form.Check
-                                                                                                    name="checkbox3"
-                                                                                                    key={`check2${task._id}`}
-                                                                                                    onChange={()=>{
-                                                                                                    this.addPermission(task)
-                                                                                                    }}
-                                                                                                    value=""
-                                                                                                    checked={this.includesTask(task)}
-                                                                                                    type="checkbox"
-                                                                                                    id={`check2${task._id}`}
-                                                                                                    label=""
-                                                                                                    />
-                                                                                        
-                                                                                    </td>
-                                                                            
-                                                                                </tr>
-                                                                            ) 
-                                                                            
-                                                                        
-                                                                        }) :
-                                                                        (
-                                                                            <tr>
-                                                                                <td className='text-center' colSpan='6'>
-                                                                                <FetchingRecords isFetching={this.state.isFetching}/>
-                                                                                </td>
-                                                                            </tr>
-                                                                        )
-                                                                    }
-                                                                    
-                                                                    </tbody>
-                                                                
-                                                                    <tfoot>
-                                                                        <tr>
-                                                                    <td colSpan='7'>
-
-                                                                    </td>
-                                                                        </tr>
-                                                                    </tfoot>
-                                                                </table>
-                                                            </div>
-                                                                            </div>
-                                                                        
-                                                                        </div>
-
-
-                                            </Tab>
-                                            
-                            </Tabs>
-
-                               
+          <div>
+            <Breadcrumb
+              routeSegments={[
+                { name: "Home", path: "/" },
+                { name: "Pages", path: "/pages" },
+                { name: "User Profile" }
+              ]}
+            ></Breadcrumb>
+    
+            <div className="card user-profile o-hidden mb-4">
+              <div
+                className="header-cover"
+                style={{
+                  backgroundImage: "url('/assets/images/photo-wide-5.jpeg')"
+                }}
+              ></div>
+              <div className="user-info">
+                <img
+                  className="profile-picture avatar-lg mb-2"
+                  src="/assets/images/faces/1.jpg"
+                  alt=""
+                />
+                <p className="m-0 text-24">{this.state.viewedUser?.full_name || this.state.viewedUser?.username}</p>
+                <p className="text-muted m-0">{this.state.viewedUser?.user_type}</p>
+              </div>
+              <div className="card-body pt-4">
+                <Tabs
+                  defaultActiveKey="Timeline"
+                  className="justify-content-center profile-nav mb-4"
+                >
+                  <Tab eventKey="Timeline" title="Timeline">
+                    <div
+                      className="tab-pane fade active show"
+                      id="timeline"
+                      role="tabpanel"
+                      aria-labelledby="timeline-tab"
+                    >
+                      <ul className="timeline clearfix">
+                        <li className="timeline-line"></li>
+                        <li className="timeline-item">
+                          <div className="timeline-badge">
+                            <i className="badge-icon bg-primary text-white i-Cloud-Laptop"></i>
+                          </div>
+                          <div className="timeline-card card">
+                            <div className="card-body">
+                              <div className="mb-1">
+                                <strong className="mr-1">Timothy Carlson</strong>
+                                added a new photo
+                                <p className="text-muted">3 hours ago</p>
+                              </div>
+                              <img
+                                className="rounded mb-2"
+                                src="/assets/images/photo-wide-1.jpg"
+                                alt=""
+                              />
+                              <div className="mb-3">
+                                <span className="mr-1">Like</span>
+                                <span>Comment</span>
+                              </div>
+                              <div className="input-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Write comment"
+                                  aria-label="comment"
+                                />
+                                <div className="input-group-append">
+                                  <button
+                                    className="btn btn-primary"
+                                    type="button"
+                                    id="button-comment1"
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                                
+                          </div>
+                        </li>
+                        <li className="timeline-item">
+                          <div className="timeline-badge">
+                            <img
+                              className="badge-img"
+                              src="/assets/images/faces/1.jpg"
+                              alt=""
+                            />
+                          </div>
+                          <div className="timeline-card card">
+                            <div className="card-body">
+                              <div className="mb-1">
+                                <strong className="mr-1">Timothy Carlson</strong>
+                                updated his sattus
+                                <p className="text-muted">16 hours ago</p>
+                              </div>
+                              <p>
+                                Lorem ipsum dolor sit amet consectetur adipisicing
+                                elit. Modi dicta beatae illo illum iusto iste
+                                mollitia explicabo quam officia. Quas ullam,
+                                quisquam architecto aspernatur enim iure debitis
+                                dignissimos suscipit ipsa.
+                              </p>
+                              <div className="mb-3">
+                                <span className="mr-1">Like</span>
+                                <span>Comment</span>
+                              </div>
+                              <div className="input-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Write comment"
+                                  aria-label="comment"
+                                />
+                                <div className="input-group-append">
+                                  <button
+                                    className="btn btn-primary"
+                                    type="button"
+                                    id="button-comment2"
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                              </div>
                             </div>
+                          </div>
+                        </li>
+                      </ul>
+                      <ul className="timeline clearfix">
+                        <li className="timeline-line"></li>
+                        <li className="timeline-group text-center">
+                          <button className="btn btn-icon-text btn-primary">
+                            <i className="i-Calendar-4"></i> 2018
+                          </button>
+                        </li>
+                      </ul>
+                      <ul className="timeline clearfix">
+                        <li className="timeline-line"></li>
+                        <li className="timeline-item">
+                          <div className="timeline-badge">
+                            <i className="badge-icon bg-danger text-white i-Love-User"></i>
+                          </div>
+                          <div className="timeline-card card">
+                            <div className="card-body">
+                              <div className="mb-1">
+                                <strong className="mr-1">New followers</strong>
+                                <p className="text-muted">2 days ago</p>
+                              </div>
+                              <p>
+                                <Link to="/">Henry krick</Link> and 16 others
+                                followed you
+                              </p>
+                              <div className="mb-3">
+                                <span className="mr-1">Like</span>
+                                <span>Comment</span>
+                              </div>
+                              <div className="input-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Write comment"
+                                  aria-label="comment"
+                                />
+                                <div className="input-group-append">
+                                  <button
+                                    className="btn btn-primary"
+                                    type="button"
+                                    id="button-comment3"
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="timeline-item">
+                          <div className="timeline-badge">
+                            <i className="badge-icon bg-primary text-white i-Cloud-Laptop"></i>
+                          </div>
+                          <div className="timeline-card card">
+                            <div className="card-body">
+                              <div className="mb-1">
+                                <strong className="mr-1">Timothy Carlson</strong>
+                                added a new photo
+                                <p className="text-muted">2 days ago</p>
+                              </div>
+                              <img
+                                className="rounded mb-2"
+                                src="/assets/images/photo-wide-2.jpg"
+                                alt=""
+                              />
+                              <div className="mb-3">
+                                <span className="mr-1">Like</span>
+                                <span>Comment</span>
+                              </div>
+                              <div className="input-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Write comment"
+                                  aria-label="comment"
+                                />
+                                <div className="input-group-append">
+                                  <button
+                                    className="btn btn-primary"
+                                    type="button"
+                                    id="button-comment4"
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                      <ul className="timeline clearfix">
+                        <li className="timeline-line"></li>
+                        <li className="timeline-group text-center">
+                          <button className="btn btn-icon-text btn-warning">
+                            <i className="i-Calendar-4"></i> Joined in 2013
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </Tab>
+                  <Tab eventKey="About" title="About">
+                    <h4>Personal Information</h4>
+                    <p>
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Eveniet, commodi quam! Provident quis voluptate asperiores
+                      ullam, quidem odio pariatur. Lorem ipsum, dolor sit amet
+                      consectetur adipisicing elit. Voluptatem, nulla eos? Cum non
+                      ex voluptate corporis id asperiores doloribus dignissimos
+                      blanditiis iusto qui repellendus deleniti aliquam, vel quae
+                      eligendi explicabo.
+                    </p>
+                    <hr />
+                    <div className="row">
+                      <div className="col-md-4 col-6">
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Calendar text-16 mr-1"></i> Birth Date
+                          </p>
+                          <span>1 Jan, 1994</span>
                         </div>
-                    {/* </div> */}
-                    {/* <!-- end of col--> */}
-
-
-                
-                </div>
-
-                </div>
-            
-            </>
-        )
-
-
-        
-    }
-
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Edit-Map text-16 mr-1"></i> Birth Place
+                          </p>
+                          <span>Dhaka, DB</span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Globe text-16 mr-1"></i> Lives In
+                          </p>
+                          <span>Dhaka, DB</span>
+                        </div>
+                      </div>
+                      <div className="col-md-4 col-6">
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-MaleFemale text-16 mr-1"></i> Gender
+                          </p>
+                          <span>1 Jan, 1994</span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-MaleFemale text-16 mr-1"></i> Email
+                          </p>
+                          <span>example@ui-lib.com</span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Cloud-Weather text-16 mr-1"></i>
+                            Website
+                          </p>
+                          <span>www.ui-lib.com</span>
+                        </div>
+                      </div>
+                      <div className="col-md-4 col-6">
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Business-Man text-16 mr-1"></i>
+                            Profession
+                          </p>
+                          <span>Digital Marketer</span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Conference text-16 mr-1"></i>
+                            Experience
+                          </p>
+                          <span>8 Years</span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-primary mb-1">
+                            <i className="i-Home1 text-16 mr-1"></i> School
+                          </p>
+                          <span>School of Digital Marketing</span>
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                    <h4>Other Info</h4>
+                    <p className="mb-4">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum
+                      dolore labore reiciendis ab quo ducimus reprehenderit natus
+                      debitis, provident ad iure sed aut animi dolor incidunt
+                      voluptatem. Blanditiis, nobis aut.
+                    </p>
+                    <div className="row">
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Plane text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Travelling</p>
+                      </div>
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Camera text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Photography</p>
+                      </div>
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Car-2 text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Driving</p>
+                      </div>
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Atom text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Gaming</p>
+                      </div>
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Music-Note-2 text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Music</p>
+                      </div>
+                      <div className="col-md-2 col-sm-4 col-6 text-center">
+                        <i className="i-Shopping-Bag text-32 text-primary"></i>
+                        <p className="text-16 mt-1">Shopping</p>
+                      </div>
+                    </div>
+                  </Tab>
+                  <Tab eventKey="Friends" title="Friends">
+                    <div className="row">
+                      <div className="col-md-3">
+                        <div className="card card-profile-1 mb-4">
+                          <div className="card-body text-center">
+                            <div className="avatar box-shadow-2 mb-3">
+                              <img src="/assets/images/faces/16.jpg" alt="" />
+                            </div>
+                            <h5 className="m-0">Jassica Hike</h5>
+                            <p className="mt-0">UI/UX Designer</p>
+                            <p>
+                              Lorem ipsum dolor sit amet consectetur adipisicing
+                              elit. Recusandae cumque.
+                            </p>
+                            <button className="btn btn-primary btn-rounded">
+                              Contact Jassica
+                            </button>
+                            <div className="card-socials-simple mt-4">
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Linkedin-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Facebook-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Twitter"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="col-md-3">
+                        <div className="card card-profile-1 mb-4">
+                          <div className="card-body text-center">
+                            <div className="avatar box-shadow-2 mb-3">
+                              <img src="/assets/images/faces/2.jpg" alt="" />
+                            </div>
+                            <h5 className="m-0">Frank Powell</h5>
+                            <p className="mt-0">UI/UX Designer</p>
+                            <p>
+                              Lorem ipsum dolor sit amet consectetur adipisicing
+                              elit. Recusandae cumque.
+                            </p>
+                            <button className="btn btn-primary btn-rounded">
+                              Contact Frank
+                            </button>
+                            <div className="card-socials-simple mt-4">
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Linkedin-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Facebook-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Twitter"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="col-md-3">
+                        <div className="card card-profile-1 mb-4">
+                          <div className="card-body text-center">
+                            <div className="avatar box-shadow-2 mb-3">
+                              <img src="/assets/images/faces/3.jpg" alt="" />
+                            </div>
+                            <h5 className="m-0">Arthur Mendoza</h5>
+                            <p className="mt-0">UI/UX Designer</p>
+                            <p>
+                              Lorem ipsum dolor sit amet consectetur adipisicing
+                              elit. Recusandae cumque.
+                            </p>
+                            <button className="btn btn-primary btn-rounded">
+                              Contact Arthur
+                            </button>
+                            <div className="card-socials-simple mt-4">
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Linkedin-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Facebook-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Twitter"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="col-md-3">
+                        <div className="card card-profile-1 mb-4">
+                          <div className="card-body text-center">
+                            <div className="avatar box-shadow-2 mb-3">
+                              <img src="/assets/images/faces/4.jpg" alt="" />
+                            </div>
+                            <h5 className="m-0">Jacqueline Day</h5>
+                            <p className="mt-0">UI/UX Designer</p>
+                            <p>
+                              Lorem ipsum dolor sit amet consectetur adipisicing
+                              elit. Recusandae cumque.
+                            </p>
+                            <button className="btn btn-primary btn-rounded">
+                              Contact Jacqueline
+                            </button>
+                            <div className="card-socials-simple mt-4">
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Linkedin-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Facebook-2"></i>
+                              </span>
+                              <span className="cursor-pointer px-1">
+                                <i className="i-Twitter"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Tab>
+                  <Tab eventKey="Photos" title="Photos">
+                    <div className="row">
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/headphone-1.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/headphone-2.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/headphone-3.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/iphone-1.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/iphone-2.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div className="card text-white o-hidden mb-3">
+                          <img
+                            className="card-img"
+                            src="/assets/images/products/watch-1.jpg"
+                            alt=""
+                          />
+                          <div className="card-img-overlay">
+                            <div className="p-1 text-left card-footer font-weight-light d-flex">
+                              <span className="mr-3 d-flex align-items-center">
+                                <i className="i-Speach-Bubble-6 mr-1"></i>
+                                12
+                              </span>
+                              <span className="d-flex align-items-center">
+                                <i className="i-Calendar-4 mr-2"></i>03.12.2018
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Tab>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
 }
 
 
 
 
-export default RoleDetailComponent;
+export default UserDetailComponent;
 
 

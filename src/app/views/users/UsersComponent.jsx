@@ -194,10 +194,22 @@ export class UsersComponent extends Component{
 
         
 
-        let {updateUserForm, allUsers, editedUser} = this.state; 
+        let {updateUserForm, allUsers, editedUser} = this.state;
+        
+           if(updateUserForm.user_type == 'ADMIN' && !updateUserForm.role_id){
+                const roleErrorMessage = {
+                    type:"error",
+                    msg:"You must set a role for Admin!"
+                }
+            return new AppNotification(roleErrorMessage);
+            }
+        if(updateUserForm.user_type != 'ADMIN'){
+            updateUserForm.role_id = null // just making sure
+        }
         let isSaving = true;
         let updateMsg = 'Updating';
         this.setState({isSaving, updateMsg})
+
         this.appMainService.updateUser(updateUserForm, editedUser._id).then(
             (updatedUser)=>{
                 updatedUser.temp_flash = true
@@ -268,8 +280,9 @@ export class UsersComponent extends Component{
      */
     editUser = (editedUser) => {
         const updateUserForm = {...editedUser}
+        const showRoles = editedUser.user_type == 'ADMIN'
         const editedIndex = this.state.allUsers.findIndex(user => editedUser._id == user._id)
-        this.setState({editedUser, editedIndex, updateUserForm});
+        this.setState({editedUser, editedIndex, updateUserForm, showRoles});
         this.toggleModal('edit')
     }
 
@@ -416,7 +429,7 @@ export class UsersComponent extends Component{
                     ()=>{ this.toggleModal('edit')}
                     } {...this.props} id='edit_modal'>
                     <Modal.Header closeButton>
-                    <Modal.Title>Update {this.state.editedUser.name}</Modal.Title>
+                    <Modal.Title>Update {this.state.editedUser.username}</Modal.Title>
                     </Modal.Header>
                   
                     <Formik
@@ -541,7 +554,7 @@ export class UsersComponent extends Component{
                                         })}
                                     >
                                         <label htmlFor="user_name">
-                                            <b>Phone No.<span className='text-danger'>*</span></b>
+                                            <b>Phone No.</b>
                                         </label>
                                         <input
                                         type="text"
@@ -648,14 +661,14 @@ export class UsersComponent extends Component{
                                             loading={false}
                                             progress={0.5}
                                             type='button'
-                                            onClick={()=>this.toggleModal('create')}
+                                            onClick={()=>this.toggleModal('edit')}
                                         
                                             >
                                             Close
                                         </LaddaButton>
     
                                         <LaddaButton
-                                            className={`btn btn-${utils.isValid(this.createUserSchema, this.state.createUserForm) ? 'success':'info_custom'} border-0 mr-2 mb-2 position-relative`}
+                                            className={`btn btn-${utils.isValid(this.updateUserSchema, this.state.updateUserForm) ? 'success':'info_custom'} border-0 mr-2 mb-2 position-relative`}
                                             loading={this.state.isSaving}
                                             progress={0.5}
                                             type='submit'
@@ -803,7 +816,7 @@ export class UsersComponent extends Component{
                                     })}
                                 >
                                     <label htmlFor="user_name">
-                                        <b>Phone No.<span className='text-danger'>*</span></b>
+                                        <b>Phone No.</b>
                                     </label>
                                     <input
                                     type="text"
@@ -971,7 +984,7 @@ export class UsersComponent extends Component{
                                                 <th>Username</th>
                                                 <th>Email</th>
                                                 <th>Phone No.</th>
-                                                <th>User Type</th>
+                                                <th>Type</th>
                                                 <th>Role</th>
                                                 <th>Status</th>
                                                 <th>Date Created</th>
@@ -1007,7 +1020,7 @@ export class UsersComponent extends Component{
                                                         {user.phone_no}
                                                         </td>
                                                         <td>
-                                                        {user.user_type}
+                                                        {user?.user_type?.toLowerCase()}
                                                         </td>
                                                         <td>
                                                         {user?.role?.name}
@@ -1086,7 +1099,7 @@ export class UsersComponent extends Component{
                                                 <th>Username</th>
                                                 <th>Email</th>
                                                 <th>Phone No.</th>
-                                                <th>User Type</th>
+                                                <th>Type</th>
                                                 <th>Role</th>
                                                 <th>Status</th>
                                                 <th>Date Created</th>
@@ -1121,7 +1134,7 @@ createUserSchema = yup.object().shape({
     full_name: yup.string().required("full name is required"),
     username: yup.string().required("user name is required"),
     email: yup.string().email('must be a valid email').required("email is required"),
-    phone_no: yup.string().required("phone number is required"),
+    phone_no: yup.string(),
     user_type: yup.string().required("user type is required"),
       });
 
@@ -1129,7 +1142,7 @@ updateUserSchema = yup.object().shape({
     full_name: yup.string().required("full name is required"),
     username: yup.string().required("user name is required"),
     email: yup.string().email('must be a valid email').required("email is required"),
-    phone_no: yup.string().required("phone number is required"),
+    phone_no: yup.string(),
     user_type: yup.string().required("user type is required"),
     });
 

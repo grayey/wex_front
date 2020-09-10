@@ -4,8 +4,9 @@ import * as yup from "yup";
 import { loginWithEmailAndPassword } from "app/redux/actions/LoginActions";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Button } from "react-bootstrap";
+
 
 const SigninSchema = yup.object().shape({
   email: yup
@@ -19,10 +20,20 @@ const SigninSchema = yup.object().shape({
 });
 
 class Signin extends Component {
+
+  constructor(props) {
+    super(props)
+  }
+
+
   state = {
     email: "watson@example.com",
-    password: "12345678"
+    password: "12345678",
+    navigate:false
   };
+
+ 
+
 
   handleChange = event => {
     event.persist();
@@ -30,7 +41,10 @@ class Signin extends Component {
   };
 
   handleSubmit = (value, { isSubmitting }) => {
-    this.props.loginWithEmailAndPassword(value);
+    
+    // this.props.loginWithEmailAndPassword(value);
+    window.location.replace('http://localhost:3000/dashboard/v1')
+    // this.setState({navigate:true})
   };
 
   render() {
@@ -38,11 +52,12 @@ class Signin extends Component {
       <div
         className="auth-layout-wrap"
         style={{
-          backgroundImage: "url(/assets/images/photo-wide-4.jpg)"
+          // backgroundImage: "url(/assets/images/photo-wide-4.jpg)"
+          backgroundColor:"transparent !important"
         }}
       >
         <div className="auth-content">
-          <div className="card o-hidden">
+          <div className={`${this.props?.public ? "cardx" : "card"} o-hidden`} >
             <div className="row">
               <div className="col-md-6">
                 <div className="p-4">
