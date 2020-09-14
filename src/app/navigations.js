@@ -13,7 +13,7 @@ export const navigations = [
       },
       {
         icon: "i-Clock-4",
-        name: "Version 2",
+        name: "Version Two",
         path: "/dashboard/v2",
         type: "link"
       }
