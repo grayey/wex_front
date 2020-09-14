@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from "react";
 // import PublicHeaderComponent from "./layouts/layout.header";
 import NewLayoutHeader from "./layouts/newLayout.header";
+import SeoComponent from "./layouts/seoComponent";
 
 import AppMainService from "../../services/appMainService";
 import LandingPageSearch from "../searches/landingPageSearch";
@@ -23,6 +24,7 @@ const NewIndexComponent = (props) =>{
     return (
 
         <>
+        <SeoComponent/>
         <div className="public_view">
 
         <NewLayoutHeader/>
