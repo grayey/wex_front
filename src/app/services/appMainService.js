@@ -17,6 +17,17 @@ export default class AppMainService extends Component {
 
 
      /**
+      * 
+      * @param {*} user
+      * 
+      * This method logs a user in 
+      */
+     async logUserIn(user){
+        return await apiService.post('users/auth/login', user);
+     }
+
+
+     /**
       * This method returns a list of all users
       */
      async getAllUsers(){
@@ -75,6 +86,8 @@ export default class AppMainService extends Component {
         const url = `users/${userSlug}`;
         return await apiService.get(url);
     }
+
+    
 
 
 

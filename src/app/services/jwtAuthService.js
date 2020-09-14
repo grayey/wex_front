@@ -1,5 +1,6 @@
 import axios from "axios";
 import localStorageService from "./localStorageService";
+import jwt_decode from "jwt-decode";
 
 class JwtAuthService {
   
@@ -32,7 +33,7 @@ class JwtAuthService {
       }, 100);
     }).then(data => {
       this.setSession(data.token);
-      this.setUser(data);
+      this.setAuthUser(data);
       return data;
     });
   };
@@ -46,16 +47,25 @@ class JwtAuthService {
 
   setSession = token => {
     if (token) {
-      localStorage.setItem("jwt_token", token);
+      localStorage.setItem("wex_commerce_user", token);
       axios.defaults.headers.common["Authorization"] = "Bearer " + token;
     } else {
-      localStorage.removeItem("jwt_token");
+      localStorage.removeItem("wex_commerce_user");
       delete axios.defaults.headers.common["Authorization"];
     }
   };
-  setUser = (user) => {    
-    localStorageService.setItem("auth_user", user);
+
+  getAuthUser = () => {
+    const token = localStorageService.getItem('wex_commerce_user');
+    const authUser = jwt_decode(token);
+    return authUser;
   }
+
+  setAuthUser = (token) => {    
+    // localStorageService.setItem("auth_user", user);
+    this.setSession(token);
+  }
+
   removeUser = () => {
     localStorage.removeItem("auth_user");
   }

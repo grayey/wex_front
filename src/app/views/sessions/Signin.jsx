@@ -6,13 +6,18 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import AppMainService from "../../services/appMainService";
+import AppNotification from "../../appNotifications";
+import * as utils from "@utils";
+
+
+
 
 
 const SigninSchema = yup.object().shape({
   email: yup
     .string()
-    .email("Invalid email")
-    .required("email is required"),
+    .required("username or email is required"),
   password: yup
     .string()
     .min(8, "Password must be 8 character long")
@@ -21,15 +26,20 @@ const SigninSchema = yup.object().shape({
 
 class Signin extends Component {
 
+  appMainService;
+
   constructor(props) {
     super(props)
+    this.appMainService = new AppMainService();
+
   }
 
 
   state = {
-    email: "watson@example.com",
-    password: "12345678",
-    navigate:false
+    email: "",
+    password: "",
+    navigate:false,
+    isSubmitting:false
   };
 
  
@@ -40,12 +50,49 @@ class Signin extends Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  handleSubmit = (value, { isSubmitting }) => {
-    
-    // this.props.loginWithEmailAndPassword(value);
-    window.location.replace('http://localhost:3000/dashboard/v1')
+  handleSubmit = (value) => {
+
+    let {isSubmitting} = this.state;
+    isSubmitting = !isSubmitting;
+    this.setState({isSubmitting});
+    const {email, password} = value;
+    const eUKey = this.isEmail(email) ? "email":"username";
+    const loginObject = {
+      [eUKey]:email,
+      password
+    }
+    this.appMainService.logUserIn(loginObject).then(
+      (userResponse)=>{
+        isSubmitting = !isSubmitting;
+        this.setState({isSubmitting})
+          // const allRoles = userResponse;
+          // this.setState({ allRoles, isSubmitting })
+
+          // this.props.loginWithEmailAndPassword(value);
+    // window.location.replace('http://localhost:3000/dashboard/v1')
     // this.setState({navigate:true})
+          console.log('userResponse', userResponse)
+      }
+  ).catch((error)=>{
+      this.setState({isSubmitting})
+      const errorNotification = {
+          type:'error',
+          msg:utils.processErrors(error)
+      }
+      new AppNotification(errorNotification)
+      
+  })
+
+    
+    
   };
+
+  isEmail = (text) =>{
+
+    const mailFormat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    return text.match(mailFormat)
+
+  }
 
   render() {
     return (
@@ -81,10 +128,10 @@ class Signin extends Component {
                     }) => (
                       <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                          <label htmlFor="email">Email address</label>
+                          <label htmlFor="email">Username <b>OR</b> Email</label>
                           <input
                             className="form-control form-control-rounded position-relative"
-                            type="email"
+                            type="text"
                             name="email"
                             onChange={handleChange}
                             onBlur={handleBlur}
