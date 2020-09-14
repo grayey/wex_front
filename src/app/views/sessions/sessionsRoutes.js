@@ -16,13 +16,13 @@ const sessionsRoutes = [
   {
     exact:true,
     path:'/',
-    component: Home
+    component: NewHome
   },
 
   {
     exact:true,
     path:'/new-home',
-    component: NewHome
+    component: Home
   },
 
   {
