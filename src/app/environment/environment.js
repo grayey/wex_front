@@ -7,8 +7,8 @@ const environment = {
         base_url: 'http://localhost:5000/api',
         base_url_front: ''
     },
-    staging: {
-        base_url: 'https://wex.herokuapp.com',
+    production: {
+        base_url: 'https://wex-backend.herokuapp.com/api',
         base_url_front: ''
     }
 
