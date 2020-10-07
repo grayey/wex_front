@@ -34,9 +34,11 @@ export class CategoriesComponent extends Component{
         createCategoryForm: {
             name: "",
             description: "",
+            parentId:""
           },
           updateCategoryForm: {
             name: "",
+            parentId:"",
             description: "",
           },
 
@@ -84,6 +86,12 @@ export class CategoriesComponent extends Component{
         this.appMainService.getAllCategories().then(
             (categoriesResponse)=>{
                 const allCategories = categoriesResponse;
+                allCategories.forEach((cat)=>{
+                    const subLevel = cat.ancestors ? cat.ancestors.length : 0;
+                    // cat['sub_level'] = subLevel;
+                    cat['parent'] = subLevel ? cat.ancestors[subLevel - 1] : null;
+
+                })
                 this.setState({ allCategories, isFetching })
                 console.log('Categories response', categoriesResponse)
             }
@@ -113,10 +121,14 @@ export class CategoriesComponent extends Component{
         let isSaving = true;
         let saveMsg = 'Saving';
         this.setState({isSaving, saveMsg})
+        createCategoryForm['ancestors'] = this.getAncestry(createCategoryForm.parentId);
         this.appMainService.createCategory(createCategoryForm).then(
             (categoryData)=>{
                 isSaving = false;
                 saveMsg = 'Save';
+                const subLevel = categoryData.ancestors ? categoryData.ancestors.length : 0;
+                // cat['sub_level'] = subLevel;
+                categoryData['parent'] = subLevel ? categoryData.ancestors[subLevel - 1] : null;
                 allCategories.unshift(categoryData)
                 this.setState({ allCategories, isSaving, saveMsg })
                 const successNotification = {
@@ -213,7 +225,6 @@ export class CategoriesComponent extends Component{
 
 
     /**
-     * 
      * This method sets the category to be edited
      *  and opens the modal for edit
      * 
@@ -311,8 +322,8 @@ export class CategoriesComponent extends Component{
                         const errorNotification = {
                             type:'error',
                             msg:utils.processErrors(error)
-                        }
-                        new AppNotification(errorNotification)
+                        };
+                        new AppNotification(errorNotification);
                 })}
               
               });
@@ -330,6 +341,30 @@ export class CategoriesComponent extends Component{
           this.setState({createCategoryForm})
 
     }
+
+    /**
+     * This method recursively builds the ancestry of a category using its parentId
+     */
+    getAncestry = (parentId, ancestry = [])=>{
+        
+        const {allCategories} =  this.state;
+        let immediateParent = allCategories.find(cat=>{
+            return parentId == cat._id;
+        })
+        if(immediateParent){
+            const {_id, name} = immediateParent;
+            ancestry.push({_id, name});
+            if(immediateParent.parentId){
+               return this.getAncestry(immediateParent.parentId, ancestry);
+            }
+        }
+        return ancestry.reverse();
+
+
+
+    }
+
+
 
     render(){
         
@@ -522,6 +557,56 @@ export class CategoriesComponent extends Component{
                         >
                              <Modal.Body>
                                 <div className="form-row">
+
+                                <div
+                                    className={utils.classList({
+                                    "col-md-12 mb-2": true,
+                                    "valid-field":
+                                        !errors.parentId && touched.parentId,
+                                    "invalid-field":
+                                        errors.parentId && touched.parentId
+                                    })}
+                                >
+                                    <label htmlFor="parent_category_name">
+                                        <b>Parent Category(optional)</b>
+                                    </label>
+                                    {/* <input
+                                    type="text"
+                                    className="form-control"
+                                    id="category_name"
+                                    placeholder=""
+                                    name="name"
+                                    value={values.name}
+                                    onChange={(event)=>this.handleChange(event)}
+                                    onBlur={handleBlur}
+                                    required
+                                    /> */}
+
+                                    <select   className="form-control"
+                                    id="parent_category_name"
+                                    name="parentId"
+                                    onChange={(event)=>this.handleChange(event)}
+                                    onBlur={handleBlur}
+                                    value={values.parentId}
+                                    >
+                                        <option value="">Select Parent Category</option>
+                                        {
+                                            this.state.allCategories.map((cat)=>{
+                                               return  (<option value={cat._id} key={cat._id}>{cat.name}</option>)
+                                            })
+                                       
+
+                                        }
+
+                                    </select>
+                                    <div className="valid-feedback"></div>
+                                    <div className="invalid-feedback">
+                                    Parent Category is required
+                                    </div>
+                                </div>
+                              
+
+
                                 <div
                                     className={utils.classList({
                                     "col-md-12 mb-2": true,
@@ -672,8 +757,10 @@ export class CategoriesComponent extends Component{
                                             <tr className="ul-widget6__tr--sticky-th">
                                                 <th>#</th>
                                                 <th>Name</th>
-                                                <th>Sales Commission (%)</th>
+                                                <th>Parent Category</th>
                                                 <th>Description</th>
+                                                <th>Sales Commission (%)</th>
+                                                
                                                 <th>Status</th>
                                                 <th>Date Created</th>
                                                 <th>Date Updated</th>
@@ -684,28 +771,35 @@ export class CategoriesComponent extends Component{
                                         {
                                           this.state.allCategories.length ?  this.state.allCategories.map( (category, index)=>{
                                                 return (
-                                                    <tr key={category._id} className={category.temp_flash ? 'bg-success text-white':''}>
+                                                    <tr key={category?._id} className={category?.temp_flash ? 'bg-success text-white':''}>
                                                         <td>
                                                             <b>{index+1}</b>.
                                                         </td>
                                                         <td>
-                                                            {category.name}
-                                                        </td>
-                                                        <td className="text-center">
-                                                            {category.commission}
+                                                            {category?.name}
                                                         </td>
                                                         <td>
-                                                        {category.description}
+                                                        {category?.parent?.name || 'None'}
                                                         </td>
+
+                                                        <td>
+                                                        {category?.description}
+                                                        </td>
+
+                                                        <td className="text-center">
+                                                            {category?.commission}
+                                                        </td>
+                                                       
+                                                       
                                                         <td>
                                                         <Form>
 
                                                              <Form.Check
-                                                                    checked={category.status}
+                                                                    checked={category?.status}
                                                                     type="switch"
-                                                                    id={`custom-switch${category._id}`}
-                                                                    label={category.status ? 'Enabled' : 'Disabled'}
-                                                                    className={category.status ? 'text-success' : 'text-danger'}
+                                                                    id={`custom-switch${category?._id}`}
+                                                                    label={category?.status ? 'Enabled' : 'Disabled'}
+                                                                    className={category?.status ? 'text-success' : 'text-danger'}
                                                                     onChange={()=> this.toggleCategory(category)} 
                                                                 />
                                                                
@@ -750,7 +844,7 @@ export class CategoriesComponent extends Component{
                                             }) :
                                             (
                                                 <tr>
-                                                    <td className='text-center' colSpan='8'>
+                                                    <td className='text-center' colSpan='9'>
                                                     <FetchingRecords isFetching={this.state.isFetching}/>
                                                     </td>
                                                 </tr>
@@ -796,6 +890,7 @@ createCategorySchema = yup.object().shape({
         name: yup.string().required("Name is required"),
         commission: yup.number().required("Sales commission is required"),
         description: yup.string().required("Description is required"),
+        parentId:null
       });
 
 
@@ -803,6 +898,8 @@ updateCategorySchema = yup.object().shape({
         name: yup.string().required("Name is required"),
         commission: yup.number().required("Sales commission is required"),
         description: yup.string().required("Description is required"),
+        parentId:null
+
         });
 
 }

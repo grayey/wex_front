@@ -227,6 +227,140 @@ export default class AppMainService extends Component {
 
     /**
      * 
+     * --- ROLES SECTION HERE ----
+     * 
+     */
+
+
+     /**
+      * This method returns a list of all roles
+      */
+     async getAllRoles(){
+        const url = 'roles';
+        return await apiService.get(url);
+    }
+
+
+    /**
+     * 
+     * @param {*} roleData 
+     * this method creates a new role
+     */
+    async createRole(roleData){
+        const url = 'roles/';
+        return await apiService.post(url,roleData);
+    }
+
+    /**
+     * 
+     * @param {*} role 
+     * @param {*} id 
+     * This method updates a role
+     */
+    async updateRole(role, id){
+        const url =`roles/${id}/`;
+        return await apiService.put(url,role);
+
+    }
+
+    /**
+     * 
+     * @param {*} role
+     * This method deletes a role
+     */
+    async deleteRole(role){
+        const url = `roles/${role._id}`
+        return await apiService.del(url);
+    }
+
+    /**
+     * 
+     * @param {*} role 
+     * This method toggles a role
+     */
+    async toggleRole(role){
+        role.status = !role.status
+      return this.updateRole(role, role._id);
+    }
+
+    /**
+      * This method returns a role by its slug
+      * 
+      */
+     async getRoleBySlug(roleSlug){
+        const url = `roles/${roleSlug}`;
+        return await apiService.get(url);
+    }
+
+
+
+
+     /**
+     * 
+     * --- CATEGORIES SECTION HERE ----
+     * 
+     */
+
+
+     /**
+      * This method returns a list of all products
+      */
+     async getAllProducts(){
+        const url = 'products';
+        return await apiService.get(url);
+    }
+
+
+    
+    
+
+    /**
+     * 
+     * @param {*} productData 
+     * this method creates a new product
+     */
+    async createProduct(productData){
+        const url = 'products/';
+        return await apiService.post(url,productData);
+    }
+
+    /**
+     * 
+     * @param {*} product 
+     * @param {*} id 
+     * This method updates a product
+     */
+    async updateProduct(product, id){
+        const url =`products/${id}/`;
+        return await apiService.put(url,product);
+
+    }
+
+    /**
+     * 
+     * @param {*} product
+     * This method deletes a product
+     */
+    async deleteProduct(product){
+        const url = `products/${product._id}`
+        return await apiService.del(url);
+    }
+
+    /**
+     * 
+     * @param {*} product 
+     * This method toggles a product
+     */
+    async toggleProduct(product){
+        product.status = !product.status
+      return this.updateProduct(product, product._id);
+    }
+
+
+
+
+    /**
+     * 
      * TASKS SECTION --------
      * 
      */

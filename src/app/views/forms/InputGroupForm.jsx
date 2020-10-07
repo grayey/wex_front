@@ -77,6 +77,7 @@ class InputGroupForm extends Component {
                   </div>
                 </div>
 
+           
                 <div className="input-group">
                   <div className="input-group-prepend">
                     <span className="input-group-text">With textarea</span>

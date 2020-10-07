@@ -266,6 +266,7 @@ class UploadForm extends Component {
                 </Row>
               );
             })}
+         
           </Card>
 
           <div>

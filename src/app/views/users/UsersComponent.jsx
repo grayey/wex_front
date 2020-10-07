@@ -81,6 +81,7 @@ export class UsersComponent extends Component{
             updateUserForm[event.target.name] = event.target.value;
         }
         this.setState({ createUserForm, updateUserForm, showRoles });
+      
     }
 
     
@@ -476,7 +477,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="full_name"
                                         value={values.full_name}
-                                        onChange={(event)=>this.handleChange(event)}
+                                        onChange={(event)=>this.handleChange(event), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -505,7 +506,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="username"
                                         value={values.username}
-                                        onChange={(event)=>this.handleChange(event)}
+                                        onChange={(event)=>this.handleChange(event), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -534,7 +535,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="email"
                                         value={values.email}
-                                        onChange={(event)=>this.handleChange(event)}
+                                        onChange={(event)=>this.handleChange(event), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -563,7 +564,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="phone_no"
                                         value={values.phone_no}
-                                        onChange={(event)=>this.handleChange(event)}
+                                        onChange={(event)=>this.handleChange(event), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -586,7 +587,7 @@ export class UsersComponent extends Component{
                                             <b>User Type<span className='text-danger'>*</span></b>
                                         </label>
                                         <select className="form-control" id="user_type"
-                                         onChange={(event)=>this.handleChange(event)}
+                                         onChange={(event)=>this.handleChange(event), handleChange}
                                          value={values.user_type}
                                          onBlur={handleBlur}
                                          name="user_type"
@@ -620,7 +621,7 @@ export class UsersComponent extends Component{
                                             <b>Role<span className='text-danger'>*</span></b>
                                         </label>
                                         <select className="form-control" id="role_id"
-                                         onChange={(event)=>this.handleChange(event)}
+                                         onChange={(event)=>this.handleChange(event), handleChange}
                                          value={values.role_id}
                                          onBlur={handleBlur}
                                          name="role_id"

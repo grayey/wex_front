@@ -11,3 +11,103 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+
+.fa-spin {
+  animation: fa-spin 2s infinite linear;
+}
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+.legend-small{
+  font-size: 13px ;
+  font-weight: bold;
+}
+
+.legend-hr{
+  background-color: #17a2b8;
+}
+
+.ReactTags__selected span.ReactTags__tag {
+  border: 1px solid #ddd;
+  background: #663399;
+  font-size: 10px;
+  color: white;
+  display: inline-block;
+  padding: 2.5px 5px;
+  margin: 2px 5px;
+  cursor: move;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.not-pseudo{
+  opacity: 0.5 !important;
+}
+
+
+select{
+  // outline:0 !important; /* I have also tried outline:none */
+  -webkit-appearance:listbox !important;
+  // box-shadow: none !important;
+  // -moz-box-shadow: none !important;
+  // -webkit-box-shadow: none !important;
+}
+
+input[type=number]{
+  -webkit-appearance:caret !important;
+}
+
+.stocks-divider{
+  height: 7rem;
+}
+
+.badges{
+  // width:150px;
+}
+
+@media (min-width: 1200px){
+
+  .modal-xl {
+    min-width: 1200px;
+    top:-20px;
+    
+}
+
+}
+
+@media (min-width: 992px){
+
+  .modal-xl {
+    width: auto;
+}
+}
+
+
+@media (min-width: 768px){
+  .modal-xl .modal-dialog {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+ }
+}
+
+
+@media (min-width: 768px){
+  .modal-xl .modal-content {
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+    height: auto;
+    min-height: 100%;
+    border-radius: 0;
+}
+}
+
+
+

@@ -9,6 +9,7 @@ import { Button } from "react-bootstrap";
 import AppMainService from "../../services/appMainService";
 import AppNotification from "../../appNotifications";
 import * as utils from "@utils";
+import { FaCog } from "react-icons/fa";
 
 
 
@@ -39,7 +40,8 @@ class Signin extends Component {
     email: "",
     password: "",
     navigate:false,
-    isSubmitting:false
+    isSubmitting:false,
+    successUrl:"dashboard/v1"
   };
 
  
@@ -56,22 +58,32 @@ class Signin extends Component {
     isSubmitting = !isSubmitting;
     this.setState({isSubmitting});
     const {email, password} = value;
-    const eUKey = this.isEmail(email) ? "email":"username";
     const loginObject = {
-      [eUKey]:email,
+      username:email,
       password
     }
     this.appMainService.logUserIn(loginObject).then(
       (userResponse)=>{
         isSubmitting = !isSubmitting;
-        this.setState({isSubmitting})
-          // const allRoles = userResponse;
-          // this.setState({ allRoles, isSubmitting })
+        this.setState({isSubmitting});
 
-          // this.props.loginWithEmailAndPassword(value);
-    // window.location.replace('http://localhost:3000/dashboard/v1')
-    // this.setState({navigate:true})
-          console.log('userResponse', userResponse)
+        const notification = {
+          type:'',
+          message:'',
+          timeOut:null
+        }
+       
+        if(userResponse.statusCode == 401){
+          notification.type = 'error';
+          notification.msg = userResponse.message
+        return new AppNotification(notification);
+        }
+
+        notification.type = 'success';
+        notification.msg = `Welcome ${userResponse.username}!`;
+        notification.timeOut = 1000;
+        this.setState({navigate:true})
+          return new AppNotification(notification);
       }
   ).catch((error)=>{
       this.setState({isSubmitting})
@@ -95,7 +107,7 @@ class Signin extends Component {
   }
 
   render() {
-    return (
+    return this.state.navigate ? <Redirect to={this.state.successUrl}/> : (
       <div
         className="auth-layout-wrap"
         style={{
@@ -162,8 +174,9 @@ class Signin extends Component {
                         <button
                           className="btn btn-rounded btn-primary btn-block mt-2"
                           type="submit"
+                          disabled={this.state.isSubmitting}
                         >
-                          Sign In
+                          Sign In {this.state.isSubmitting ? <FaCog className="fa-spin"/> : null}
                         </button>
                       </form>
                     )}

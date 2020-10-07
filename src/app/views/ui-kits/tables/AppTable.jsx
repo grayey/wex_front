@@ -284,6 +284,7 @@ class AppTable extends Component {
                 Use <code>.table-striped</code> to add zebra-striping to any
                 table rowwithin the <code>&lt;tbody&gt;</code>.
               </p>
+            
               <div className="table-responsive">
                 <table
                   id="user_table"
@@ -335,6 +336,7 @@ class AppTable extends Component {
                   </tbody>
                 </table>
               </div>
+         
             </SimpleCard>
           </div>
           <div className="col-md-6 mb-3">

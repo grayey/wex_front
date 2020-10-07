@@ -156,6 +156,8 @@ class MultiColumnForms extends Component {
                           </small>
                         </div>
                       </div>
+             
+             
                     </div>
                     <div className="card-footer">
                       <div className="mc-footer">

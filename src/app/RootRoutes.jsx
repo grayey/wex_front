@@ -22,6 +22,7 @@ import categoriesRoutes from "./views/categories/categoriesRoute";
 import rolesRoutes from "./views/roles/rolesRoutes";
 import tasksRoutes from "./views/tasks/tasksRoutes";
 import usersRoutes from "./views/users/usersRoutes";
+import productsRoutes from "./views/products/productsRoutes";
 
 
 const redirectRoute = [
@@ -50,6 +51,7 @@ const routes = [
       ...tasksRoutes,
       ...rolesRoutes,
       ...usersRoutes,
+      ...productsRoutes,
       ...uiKitsRoutes,
       ...formsRoutes,
       ...widgetsRoute,

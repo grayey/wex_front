@@ -21,62 +21,58 @@ export const navigations = [
   },
 
   {
+    name: "Products",
+    description: "Lorem ipsum dolor sit.",
+    icon: "i-Bar-Chart",
+    path: "/dashboard/products",
+    type: "link"
+  },
+
+  {
+    name: "Bids",
+    description: "Lorem ipsum dolor sit.",
+    icon: "i-Bar-Chart",
+    path: "/dashboard/bids",
+    type: "link"
+  },
+
+  {
+    name: "Transactions",
+    description: "Lorem ipsum dolor sit.",
+    icon: "i-Bar-Chart",
+    path: "/dashboard/transactions",
+    type: "link"
+  },
+
+  {
     name: "Categories",
     description: "Lorem ipsum dolor sit.",
-    type: "dropDown",
     icon: "i-Bar-Chart",
-    sub: [
-      {
-        icon: "i-Clock-3",
-        name: "View",
-        path: "/dashboard/categories",
-        type: "link"
-      },
-    ]
+    path: "/dashboard/categories",
+    type: "link"
   },
 
   {
     name: "Users",
     description: "Lorem ipsum dolor sit.",
-    type: "dropDown",
     icon: "i-User",
-    sub: [
-      {
-        icon: "i-Clock-3",
-        name: "View",
-        path: "/dashboard/users",
-        type: "link"
-      },
-    ]
+    type: "link",
+    path: "/dashboard/users"
   },
   {
     name: "Roles",
     description: "Lorem ipsum dolor sit.",
-    type: "dropDown",
     icon: "i-Bar-Chart",
-    sub: [
-      {
-        icon: "i-Clock-3",
-        name: "View",
-        path: "/dashboard/roles",
-        type: "link"
-      },
-    ]
+    path: "/dashboard/roles",
+    type: "link"
   },
 
   {
     name: "Tasks",
     description: "Lorem ipsum dolor sit.",
-    type: "dropDown",
     icon: "i-Bar-Chart",
-    sub: [
-      {
-        icon: "i-Clock-3",
-        name: "View",
-        path: "/dashboard/tasks",
-        type: "link"
-      },
-    ]
+    path: "/dashboard/tasks",
+    type: "link"
   },
   {
     name: "UI kits",
