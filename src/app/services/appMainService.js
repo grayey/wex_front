@@ -356,6 +356,28 @@ export default class AppMainService extends Component {
       return this.updateProduct(product, product._id);
     }
 
+    
+    /**
+     * 
+     * STOCKS SECTION --------
+     * 
+     */
+
+
+     
+    /**
+     * 
+     * @param {*} productId 
+     * @param {*} stock 
+     *  
+      * This method returns a creates a new stock using product id
+      */
+      async createProductStock(productId, stock){
+          const url = `products/${productId}/stocks/`;
+          return await apiService.post(url,stock);
+
+      }
+
 
 
 
@@ -363,10 +385,9 @@ export default class AppMainService extends Component {
      * 
      * TASKS SECTION --------
      * 
-     */
-      /**
-      * This method returns a list of all categories
-      */
+      * This method returns a list of all tasks
+      *      
+      *  */
      async getAllTasks(){
         const url = 'tasks';
         return await apiService.get(url);

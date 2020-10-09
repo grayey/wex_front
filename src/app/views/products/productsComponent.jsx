@@ -10,7 +10,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import AppNotification from "../../appNotifications";
 import {FetchingRecords} from "../../appWidgets";
-import { FaPlus } from "react-icons/fa";
+import { FaCog, FaArrowDown } from "react-icons/fa";
 
 import StockImagesUpload from "./stockImagesUpload";
 
@@ -40,12 +40,14 @@ export class ProductsComponent extends Component{
         updateMsg:'Update',
         editedProduct: {},
         viewedProductForStock:{},
+        productStocks:[],
         keywords:[],
+        images:[],
+        imagesCommand:"",
         createStockForm:{
-            name: "",
-            category:"",
-            packaging: "",
-            delivery_option:""
+            quantity: "",
+            price:"",
+            description: "",
         },
         createProductForm: {
             name: "",
@@ -59,48 +61,6 @@ export class ProductsComponent extends Component{
             packaging: "",
             delivery_option:""
           },
-          newUserList: [
-            {
-              name: "Smith Doe",
-              email: "Smith@gmail.com",
-              status: "active",
-              photoUrl: "/assets/images/faces/1.jpg"
-            },
-            {
-              name: "Jhon Doe",
-              email: "Jhon@gmail.com",
-              status: "pending",
-              photoUrl: "/assets/images/faces/2.jpg"
-            },
-            {
-              name: "Alex",
-              email: "Otttio@gmail.com",
-              status: "inactive",
-              photoUrl: "/assets/images/faces/3.jpg"
-            },   {
-                name: "Smith Doe",
-                email: "Smith@gmail.com",
-                status: "active",
-                photoUrl: "/assets/images/faces/1.jpg"
-              },
-              {
-                name: "Jhon Doe",
-                email: "Jhon@gmail.com",
-                status: "pending",
-                photoUrl: "/assets/images/faces/2.jpg"
-              },
-              {
-                name: "Alex",
-                email: "Otttio@gmail.com",
-                status: "inactive",
-                photoUrl: "/assets/images/faces/3.jpg"
-              }
-          ],
-          carouselImageList: [
-            "/assets/images/products/iphone-1.jpg",
-            "/assets/images/products/headphone-1.jpg",
-            "/assets/images/products/iphone-1.jpg"
-          ]
 
     }
     appMainService;
@@ -125,7 +85,7 @@ export class ProductsComponent extends Component{
      */
 
     handleChange = (event, form='create') => {
-        let {createProductForm, updateProductForm, keywords} = this.state;
+        let {createProductForm, updateProductForm,createStockForm, keywords} = this.state;
         const targetName = event.target.name;
         const targetValue = event.target.value;
         if(form === 'create'){
@@ -133,6 +93,8 @@ export class ProductsComponent extends Component{
 
         }else if(form === 'edit'){
             updateProductForm[targetName] = targetValue;
+        }else if(form === 'stock'){
+            createStockForm[targetName] = targetValue;
         }
 
        if(targetName === 'category'){
@@ -480,8 +442,19 @@ export class ProductsComponent extends Component{
          if(viewedProductForStock.no_of_stocks){
              // go to backend and fetch stocks
          }
-        this.setState({viewedProductForStock})
+         const productStocks = viewedProductForStock.stocks || [];
+         this.setState({viewedProductForStock, productStocks})
          this.toggleModal('manage_stock');
+     }
+
+     /**
+      * This method adds a new stock
+      */
+     createStock = ()=> {
+         let {imagesCommand, isSaving} = this.state;
+         imagesCommand = 'upld'; // pass upload control to StockImagesUpload child
+         isSaving = true;
+         this.setState({imagesCommand,isSaving})
      }
 
       /**
@@ -523,6 +496,48 @@ export class ProductsComponent extends Component{
         });
     }
 
+    setImages = async (images, imagesCommand="") => {
+        // let images = files.map(file=> file.file)
+        
+        let {createStockForm, productStocks,  isSaving, viewedProductForStock } = this.state;
+        if(imagesCommand == "clr"){
+            console.log("Now clearing", viewedProductForStock);
+            const newStock = {...createStockForm};
+            newStock['images'] = images;
+
+            // save to backend
+           await this.appMainService.createProductStock(viewedProductForStock._id ,newStock).then(
+                (stocksResponse) =>{
+                createStockForm = {
+                    quantity:"",
+                    price:"",
+                    description:""
+                };
+                images = [];
+                isSaving = false;
+                const successNotification = {
+                    type:'success',
+                    msg:`New stock added for ${viewedProductForStock.name}`
+                }
+                productStocks.unshift(stocksResponse);
+                new AppNotification(successNotification)
+
+                }).catch((error)=>{
+                    console.log("Error", error)
+                    const errorNotification = {
+                        type:'error',
+                        msg:utils.processErrors(error)
+                    }
+                    new AppNotification(errorNotification)
+                    isSaving = false;
+                })
+                           
+            
+        }
+        this.setState({images, imagesCommand, createStockForm, productStocks, isSaving});
+       
+    }
+
 
     render(){
         
@@ -535,7 +550,7 @@ export class ProductsComponent extends Component{
 
                 <Modal show={this.state.showManageStockModal} onHide={
                     ()=>{ this.toggleModal('manage_stock')}
-                    } {...this.props} id='manage_stock_modal' size="xl">
+                    } {...this.props} id='manage_stock_modal' size="xl" scrollable={true}>
                     <Modal.Header closeButton>
                     <Modal.Title>
 
@@ -545,291 +560,315 @@ export class ProductsComponent extends Component{
 
                     </Modal.Title>
                     </Modal.Header>
-
-                    <div className="row mt-2">
-
-                        <div className="col-md-6 border-right">
-
-                            <div className="card mr-2 ml-2 mb-2">
-                                <div className="card-header">
-                                    <h5 className="text-center"><b>New stock details</b></h5>
-                                </div>
-
-                                <Formik
-                        initialValues={this.state.createStockForm}
-                        validationSchema={this.createStockSchema}
-                        onSubmit={this.createStock}
-                        >
-                        {({
-                            values,
-                            errors,
-                            touched,
-                            handleChange,
-                            handleBlur,
-                            handleSubmit,
-                            isSubmitting,
-                            resetForm
-                        }) => {
+                    <Modal.Body>
+                        <div className="row mt-2">
                         
-                            return (
-                            <form
-                                className="needs-validation "
-                                onSubmit={handleSubmit}
-                                noValidate
-                            >
-                                <Modal.Body>
-                                    <div className="form-row">
-
-                                
-                                
-                                
-                                    <div
-                                        className={utils.classList({
-                                        "col-md-6 mb-2": true,
-                                        "valid-field":
-                                            !errors.quantity && touched.quantity,
-                                        "invalid-field":
-                                            errors.quantity && touched.quantity
-                                        })}
-                                    >
-                                        <label htmlFor="create_stock_quantity">
-                                            <b>Quantity(kg)<span className='text-danger'>*</span></b>
-                                        </label>
-                                        <input
-                                        type="number"
-                                        className="form-control"
-                                        id="create_stock_quantity"
-                                        placeholder=""
-                                        name="commission"
-                                        value={values.quantity}
-                                        onChange={(event)=>this.handleChange(event)}
-                                        onBlur={handleBlur}
-                                        required
-                                        />
-                                        <div className="valid-feedback"></div>
-                                        <div className="invalid-feedback">
-                                        {errors.quantity}
+                                <div className="col-md-12">
+                            
+                                    <div className="card mr-2 ml-2 mb-2">
+                                        <div className="card-header">
+                                            <h5 className="text-center"><b>New stock details</b></h5>
                                         </div>
-                                    </div>
-
-                                    <div
-                                        className={utils.classList({
-                                        "col-md-6 mb-2": true,
-                                        "valid-field":
-                                            !errors.price && touched.price,
-                                        "invalid-field":
-                                            errors.price && touched.price
-                                        })}
-                                    >
-                                        <label htmlFor="create_stock_price">
-                                            <b>Price per kg<span className='text-danger'>*</span></b>
-                                        </label>
-                                        <input
-                                        type="number"
-                                        className="form-control"
-                                        id="create_stock_price"
-                                        placeholder=""
-                                        name="commission"
-                                        value={values.price}
-                                        onChange={(event)=>this.handleChange(event)}
-                                        onBlur={handleBlur}
-                                        required
-                                        />
-                                        <div className="valid-feedback"></div>
-                                        <div className="invalid-feedback">
-                                        {errors.price}
-                                        </div>
-                                    </div>
-
-        
-                                
-                                
-                                    <div
-                                        className={utils.classList({
-                                        "col-md-12 mb-2": true,
-                                        "valid-field":
-                                            touched.description && !errors.description,
-                                        "invalid-field":
-                                            touched.description && errors.description
-                                        })}
-                                    >
-                                        <label htmlFor="create_stock_description">
-                                            <b>Description<span className='text-danger'>*</span></b>
-                                        </label>
-
-                                        <textarea className="form-control"
-                                        id="create_stock_description"  onChange={(event)=>this.handleChange(event)}
-                                        name="description" 
-                                        defaultValue={values.description}
-                                    />
-                                        <div className="valid-feedback"></div>
-                                        <div className="invalid-feedback">
-                                        Description is required
-                                        </div>
-                                    </div>
 
                                     
-                                    <div className="col-md-12 mt-2">
-                                        {/* <div className="card-header">
-                                            <div className="card-titlex">
-                                            <h6><b>Stock images</b></h6>
-                                            </div>
-                                        </div> */}
-                                        
-                                        <div className="card-body">
-                                            <StockImagesUpload/>
+                                        <div className="card-body" style={{maxHeight:"300px"}}>
+                                            <Formik
+                                                initialValues={this.state.createStockForm}
+                                                validationSchema={this.createStockSchema}
+                                                onSubmit={this.createStock}
+                                                >
+                                    {({
+                                        values,
+                                        errors,
+                                        touched,
+                                        handleChange,
+                                        handleBlur,
+                                        handleSubmit,
+                                        isSubmitting,
+                                        resetForm
+                                    }) => {
+                                    
+                                        return (
+                                        <form
+                                            className="needs-validation "
+                                            onSubmit={handleSubmit}
+                                            noValidate
+                                        >
+                                            
+                                                <div className="form-row">
 
+                                            
+                                                <div className="col-md-12 mt-2">
+
+                                                <div className="row">
+
+                                                    <div className="col-md-4 border-right">
+                                                        <div className="row">
+                                                            
+                                                            <div
+                                                                className={utils.classList({
+                                                                "col-md-6 mb-2": true,
+                                                                "valid-field":
+                                                                    !errors.quantity && touched.quantity,
+                                                                "invalid-field":
+                                                                    errors.quantity && touched.quantity
+                                                                })}
+                                                            >
+                                                                <label htmlFor="create_stock_quantity">
+                                                                    <b>Quantity(kg)<span className='text-danger'>*</span></b>
+                                                                </label>
+                                                                <input
+                                                                type="number"
+                                                                className="form-control"
+                                                                id="create_stock_quantity"
+                                                                placeholder=""
+                                                                name="quantity"
+                                                                value={this.state.createStockForm.quantity}
+                                                                onChange={(event)=>this.handleChange(event, 'stock')}
+                                                                onBlur={handleBlur}
+                                                                required
+                                                                />
+                                                                <div className="valid-feedback"></div>
+                                                                <div className="invalid-feedback">
+                                                                {errors.quantity}
+                                                                </div>
+                                                            </div>
+
+                                                            <div
+                                                                className={utils.classList({
+                                                                "col-md-6 mb-2": true,
+                                                                "valid-field":
+                                                                    !errors.price && touched.price,
+                                                                "invalid-field":
+                                                                    errors.price && touched.price
+                                                                })}
+                                                            >
+                                                                <label htmlFor="create_stock_price">
+                                                                    <b>Price per kg<span className='text-danger'>*</span></b>
+                                                                </label>
+                                                                <input
+                                                                type="number"
+                                                                className="form-control"
+                                                                id="create_stock_price"
+                                                                placeholder=""
+                                                                name="price"
+                                                                value={this.state.createStockForm.price}
+                                                                onChange={(event)=>this.handleChange(event, 'stock')}
+                                                                onBlur={handleBlur}
+                                                                required
+                                                                />
+                                                                <div className="valid-feedback"></div>
+                                                                <div className="invalid-feedback">
+                                                                {errors.price}
+                                                                </div>
+                                                            </div>
+
+                                
+                                                        
+                                                        
+                                                            <div
+                                                                className={utils.classList({
+                                                                "col-md-12 mb-2": true,
+                                                                "valid-field":
+                                                                    touched.description && !errors.description,
+                                                                "invalid-field":
+                                                                    touched.description && errors.description
+                                                                })}
+                                                            >
+                                                                <label htmlFor="create_stock_description">
+                                                                    <b>Description<span className='text-danger'>*</span></b>
+                                                                </label>
+
+                                                                <textarea className="form-control"
+                                                                id="create_stock_description"  onChange={(event)=>this.handleChange(event, 'stock')}
+                                                                name="description" 
+                                                                value={this.state.createStockForm.description}
+                                                            />
+                                                                <div className="valid-feedback"></div>
+                                                                <div className="invalid-feedback">
+                                                                Description is required
+                                                                </div>
+                                                            </div>
+
+                                                            
+
+                                                        </div>
+                                                    </div>
+                                                
+                                                
+                                                    <div className="col-md-8 col-sm-12">
+                                            
+                                                        <StockImagesUpload  imagesCommand={this.state.imagesCommand} setImages={(images,imagesCommand)=>this.setImages(images,imagesCommand)}/>
+                                                    
+                                            
+
+                                                    </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            
+                                            
+
+                                                </div>
+                                            
+                                    
+                                                <div className="border-top p-2">
+                                        
+                                                    {/* <LaddaButton
+                                                        className="btn btn-secondary_custom border-0 mr-2 mb-2 position-relative"
+                                                        loading={false}
+                                                        progress={0.5}
+                                                        type='button'
+                                                        onClick={()=>this.toggleModal('manage_stock')}
+                                                    
+                                                        >
+                                                        Close
+                                                    </LaddaButton> */}
+
+                                                        <div className="float-right">
+
+                                                            <LaddaButton
+                                                            className={`btn btn-${utils.isValid(this.createStockSchema, this.state.createStockForm) && this.state.images.length ? 'success':'primary'} border-0 mr-2 mb-2 position-relative`}
+                                                            loading={this.state.isSaving}
+                                                            disabled={!this.state.images.length || !utils.isValid(this.createStockSchema, this.state.createStockForm)}
+                                                            progress={0.5}
+                                                            type='submit'
+                                                            data-style={EXPAND_RIGHT}
+                                                            >
+                                                            {"Add stock"} {this.state.isSaving ? null : <FaArrowDown/> }
+                                                            </LaddaButton>
+
+                                                        </div>
+                                                    </div>
+                        
+                                        
+                                        </form>
+                                        );
+                                    }}
+                                
+                                    </Formik>
+                                        
+                         
                                         </div>
-
                                     </div>
                                 
-                                
-
-
-                                    </div>
-                                </Modal.Body>
-                        
-                                <Modal.Footer>
-                            
-                                        {/* <LaddaButton
-                                            className="btn btn-secondary_custom border-0 mr-2 mb-2 position-relative"
-                                            loading={false}
-                                            progress={0.5}
-                                            type='button'
-                                            onClick={()=>this.toggleModal('manage_stock')}
-                                        
-                                            >
-                                            Close
-                                        </LaddaButton> */}
-
-                                        <LaddaButton
-                                            className={`btn btn-${utils.isValid(this.createStockSchema, this.state.createStockForm) ? 'success':'primary'} border-0 mr-2 mb-2 position-relative`}
-                                            loading={this.state.isSaving}
-                                            progress={0.5}
-                                            type='submit'
-                                            data-style={EXPAND_RIGHT}
-                                            >
-                                            {"Add"} <FaPlus/>
-                                        </LaddaButton>
-                                        </Modal.Footer>
-            
-                            </form>
-                            );
-                        }}
-                    
-                        </Formik>
-                    
-
-                            </div>
-                        </div>
-
-                      
-                        <div className="col-md-6">
-                            
-                            <div className="card mr-2 ml-2 mb-2 ">
-                            <div className="card-header">
-                                <h5 className="text-center"><b>List of stocks</b></h5>
-                            </div>
-
-                            
-                            <div className="table-responsive">
-                <table
-                  id="user_table"
-                  className="table table-striped  text-center"
-                >
-                  <thead>
-                    <tr>
-                      <th scope="col">Qty. (kg)</th>
-                      <th scope="col">Price per kg</th>
-                      <th scope="col" colSpan='2'>Images</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {this.state.newUserList.map((user, index) => (
-                      <tr key={index}>
-                        {/* <th scope="row">{index + 1}</th> */}
-                        <td>{user.name}</td>
-                        <td>
-                          <img
-                            className="rounded-circle m-0 avatar-sm-table "
-                            src={user.photoUrl}
-                            alt=""
-                          />
-                        </td>
-
-                        <td colSpan='2'>
-                            {user.email}
-
-                            <Carousel indicators={false}>
-                    {this.state.carouselImageList.map((img, ind) => (
-                      <Carousel.Item key={ind}>
-                        {/* <img
-                           className="rounded-circle m-0 avatar-sm-table "
-                          src={img}
-                          alt="First slide"
-                        /> */}
-                             
-                             <div className="ul-widget3-img">
-                          <img
-                            src="/assets/images/faces/1.jpg"
-                            id="userDropdown"
-                            alt=""
-                            data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                          />
-                        </div>
-                               
-                                  
-            
-                      </Carousel.Item>
-                    ))}
-                  </Carousel>
-                            
-                            
-                            </td>
-                        
-                        <td>
-                          <span
-                            // className={`badge ${this.getUserStatusClass(
-                            //   user.status
-                            // )}`}
-                          >
-                            {user.status}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="cursor-pointer text-success mr-2">
-                            <i className="nav-icon i-Pen-2 font-weight-bold"></i>
-                          </span>
-                          <span className="cursor-pointer text-danger mr-2">
-                            <i className="nav-icon i-Close-Window font-weight-bold"></i>
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-         
-
-                            </div>
-                             <div className=" stocks-divider border-bottom"></div>
-                            <div className="card-footerx m-3">
-
-                                <div className="float-right">
-                                    <button className="btn btn-secondary_custom mr-3">Close </button>
-                                    <button className="btn btn-info_custom">Save Stocks</button>
                                 </div>
+                            
+                        
+                            <div className="col-md-12">
+                                
+                                <div className="cardx mr-2 ml-2 mb-2 ">
+                                {/* <div className="card-header">
+                                    <h5 className="text-center"><b>List of stocks</b></h5>
+                                </div> */}
 
+                                <div className="card-bodyx">
+                                    <div className="table-responsive">
+                                        <div style={{"maxHeight":"400px", "overflowY":"scroll"}}>
+                                            <table id="user_table" className="table table-striped" >
+                                                <thead className="thead-darkx">
+                                                    <tr className="ul-widget6__tr--sticky-th">
+                                                    <th scope="col">Qty. (kg)</th>
+                                                    <th scope="col">Price / kg</th>
+                                                    <th scope="col" colSpan='2' className="text-center">Images</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                    {
+                                        this.state.productStocks.length ?
+                                
+                                        this.state.productStocks.map((stock, index) => (
+                                        <tr key={index}>
+                                            {/* <th scope="row">{index + 1}</th> */}
+                                            <td>{stock?.quantity}</td>
+                                            <td>
+                                            &#x20a6;{stock?.price} per kg
+                                            </td>
 
+                                            <td colSpan='2' className="text-center">
+                                                <b>{(stock?.images?.length)}</b>
+
+                                                <Carousel indicators={false}>
+                                        {stock.images.map((img, ind) => (
+                                        <Carousel.Item key={ind}>
+                                            {/* <img
+                                            className="rounded-circle m-0 avatar-sm-table "
+                                            src={img}
+                                            alt="First slide"
+                                            /> */}
+                                                
+                                                <div className="ul-widget3-img">
+                                            <img
+                                                src={img.preview_url}
+                                                id="userDropdown"
+                                                alt=""
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                            />
+                                            </div>
+                                                
+                                                    
+                                
+                                        </Carousel.Item>
+                                        ))}
+                                    </Carousel>
+                                                
+                                                
+                                                </td>
+                                            
+                                            <td>
+                                            <span
+                                                // className={`badge ${this.getUserStatusClass(
+                                                //   user.status
+                                                // )}`}
+                                            >
+                                                {stock?.featured ? "featured":""}
+                                            </span>
+                                            </td>
+                                            <td>
+                                            <span className="cursor-pointer text-success mr-2">
+                                                <i className="nav-icon i-Pen-2 font-weight-bold"></i>
+                                            </span>
+                                            <span className="cursor-pointer text-danger mr-2">
+                                                <i className="nav-icon i-Close-Window font-weight-bold"></i>
+                                            </span>
+                                            </td>
+                                        </tr>
+                                        ))
+                                        :
+
+                                        (
+                                            <tr>
+                                                <td colSpan="6" className="text-center">No stocks for {this.state.viewedProductForStock?.name}</td>
+                                            </tr>
+                                        )
+                                    
+                                    } 
+
+                                        
+                                    </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
+                    </Modal.Body>
+                    
 
-                    </div>
-
+                    <Modal.Footer>
+                        <button className="btn btn-secondary_custom mr-3">Close </button>
+                        {/* <button className="btn btn-info_custom">Save Stocks</button> */}
+                   </Modal.Footer>
                     
                   
                 </Modal>
@@ -1593,6 +1632,7 @@ export class ProductsComponent extends Component{
                             {/* <div style={{"maxHeight":"500px", "overflowY":"scroll"}}> */}
 
                             <div className="table-responsive">
+                            
                                     <table className="display table table-striped table-hover " id="zero_configuration_table" style={{"width":"100%"}}>
                                         <thead>
                                             <tr className="ul-widget6__tr--sticky-th">
@@ -1654,7 +1694,7 @@ export class ProductsComponent extends Component{
                                                            <div className="btn-group">
                                                            <button onClick={()=>this.editProductStock(product)} className={`btn  ${product?.no_of_stocks ? "btn-info_custom":"btn-danger breathe"} btn-sm`}>
                                                                
-                                                           {product?.no_of_stocks ? "Manage Stock" :"Add Stock!"}
+                                                           {product?.no_of_stocks ? "Manage Stock" :"Add Stock!"} 
                                                                
                                                            </button>
                                                            <button  disabled className="btn btn-warning text-white btn-sm">
@@ -1725,7 +1765,7 @@ export class ProductsComponent extends Component{
                                             }) :
                                             (
                                                 <tr>
-                                                    <td className='text-center' colSpan='9'>
+                                                    <td className='text-center' colSpan='11'>
                                                     <FetchingRecords isFetching={this.state.isFetching}/>
                                                     </td>
                                                 </tr>
@@ -1734,11 +1774,15 @@ export class ProductsComponent extends Component{
                                         
                                         </tbody>
                                         <tfoot>
-                                            <tr>
+                                        <tr className="ul-widget6__tr--sticky-th">
                                                 <th>#</th>
-                                                <th>Name</th>
-                                                <th>Sales Commision (%)</th>
-                                                <th>Description</th>
+                                                <th>Product Name</th>
+                                                <th>Category</th>
+                                                <th className="text-center">Keywords</th>
+                                                <th>Packaging</th>
+                                                <th>Delivery</th>
+                                                <th>Stocks</th>
+
                                                 <th>Status</th>
                                                 <th>Date Created</th>
                                                 <th>Date Updated</th>
@@ -1746,7 +1790,8 @@ export class ProductsComponent extends Component{
                                             </tr>
                                         </tfoot>
                                     </table>
-                                </div>
+                               
+                            </div>
                             </div>
                                 
                             </div>
@@ -1783,10 +1828,9 @@ updateProductSchema = yup.object().shape({
         });
 
         createStockSchema =  yup.object().shape({
-            name: yup.string().required("Stock name is required"),
-            category:yup.string().required("Stock category is required"),
-            packaging: yup.string().required("Stock is required"),
-            delivery_option:yup.string().required("Stock is required")
+            quantity: yup.number().required("Stock quantity is required"),
+            price:yup.number().required("Stock unit price is required"),
+            description: yup.string().required("Description required"),
           });
 
 }

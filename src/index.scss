@@ -65,7 +65,7 @@ input[type=number]{
 }
 
 .stocks-divider{
-  height: 7rem;
+  height: 3.2rem;
 }
 
 .badges{
@@ -111,3 +111,13 @@ input[type=number]{
 
 
 
+.dropzone {
+  min-height: 100px !important;
+  border: 2px dashed #673ab75e !important;
+  background: #f5f5f5 !important;
+  padding: 20px 20px;
+}
+
+button:disabled{
+  cursor: not-allowed !important;
+}

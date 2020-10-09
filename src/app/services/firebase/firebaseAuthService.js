@@ -1,13 +1,15 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firebase-firestore";
+import 'firebase/storage'; 
 import firebaseConfig from "./firebaseConfig";
 
 class FirebaseAuthService {
+
   auth;
   firestore;
-  //   database;
-  //   storage;
+  database;
+  storage;
 
   googleProvider;
   facebookProvider;
@@ -16,12 +18,13 @@ class FirebaseAuthService {
   constructor() {
     // UNCOMMENT IF YOU WANT TO USE FIREBASE
 
-    // this.init();
+    this.init();
+    console.log('Called')
     // this.auth = firebase.auth();
     // this.firestore = firebase.firestore();
 
     //   this.database  = firebase.database();
-    //   this.storage = firebase.storage();
+      this.storage = firebase.storage();
     
     // this.googleProvider = new firebase.auth.GoogleAuthProvider();
     // this.facebookProvider = new firebase.auth.FacebookAuthProvider();

@@ -1,8 +1,14 @@
 import React, { Component } from "react";
 import { Breadcrumb, SimpleCard } from "@gull";
 import { Button, Card, Row, Col, ProgressBar } from "react-bootstrap";
+import FirebaseService  from "../../services/firebase/firebaseAuthService";
 
 class StockImagesUpload extends Component {
+
+  constructor(props){
+    super(props);
+  }
+
   state = {
     dragClass: "",
     files: [],
@@ -33,6 +39,7 @@ class StockImagesUpload extends Component {
     this.setState({
       files: [...list]
     });
+    this.props.setImages(list);
   };
 
   handleDragOver = event => {
@@ -74,10 +81,12 @@ class StockImagesUpload extends Component {
     this.setState({
       files: [...files]
     });
+    this.props.setImages(files);
   };
 
   handleAllRemove = () => {
-    this.setState({ files: [], queProgress: 0 });
+    const files = [];
+    this.setState({ files, queProgress: 0 });
   };
 
   uploadSingleFile = index => {
@@ -144,6 +153,83 @@ class StockImagesUpload extends Component {
     return URL.createObjectURL(file);
   }
 
+  uploadImagesToFirebase = async () => {
+    
+    const { files } = this.state;
+    const imageFiles = files.map((f)=> f.file);
+
+    for (var i = 0; i < imageFiles.length; i++) {
+      var imageFile = imageFiles[i];
+      await this.uploadImageAsPromise(imageFile,i).then((res)=>{
+       console.log(res, "Upload response");
+        });
+  }
+    
+
+  }
+
+  /**
+   * 
+   * @param {*} imageFile 
+   * this method uploads images to firebase
+   */
+  uploadImageAsPromise = async (imageFile, i) => {
+    console.log(imageFile, "Image file")
+    const { files } = this.state;
+    const {name, preview_url} = imageFile;
+    const date = new Date();
+    const path = `documents/${name.split(' ').join('')}-${date.getTime()}`;
+    const fileRef = FirebaseService.storage.ref(path);
+
+    return new Promise( (resolve, reject) => {
+      var task = fileRef.put(imageFile);
+
+      //Update progress bar
+      task.on('state_changed',
+           (snapshot) => {
+              var percentage = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+                   imageFile['progress'] = percentage;
+                   imageFile['preview_url'] = preview_url;
+                   files[i] = imageFile;
+                   this.setState({files});
+
+                   
+
+
+                   console.log("Upload percentage", percentage)
+          },
+          (err)=>{
+              reject(err);
+          },
+          ()=>{
+              var downloadURL = task.snapshot.downloadURL;
+              console.log("Download url", task.snapshot)
+              resolve(downloadURL);
+          }
+      );
+  });
+
+  
+
+  }
+
+  async componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      const {imagesCommand} = nextProps;
+      let {files} = this.state;
+
+      if(imagesCommand == 'clr' && this.props.imagesCommand !== imagesCommand){ // clearImages
+        files = [];
+        this.setState({files});
+        this.props.setImages(files);
+
+      }else if(imagesCommand == 'upld'){
+        await this.uploadImagesToFirebase();
+        console.log("After ", files)
+        this.props.setImages(files,'clr'); // pass control back to parent
+      }
+    }
+   }
   render() {
     let { dragClass, files, queProgress } = this.state;
     let isEmpty = files.length === 0;
@@ -211,42 +297,62 @@ class StockImagesUpload extends Component {
                 <div className="col-md-7">
 
                     <div className="table-responsive">
+                      <div style={{"maxHeight":"200px", "overflowY":"scroll"}}>
+                         
+                          <table className="table">
+                              <thead>
+                                  <tr className="ul-widget6__tr--sticky-th">
+                                      <th>Image</th>
+                                      <th>Progress</th>
+                                      <th>Action</th>
+                                  </tr>
+                                  </thead>
+                              
 
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Progress</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                            
-
-                             <tbody>
-                               
-                                {files.map((item, index) => {
-                                let { file, uploading, error, progress } = item;
-                                return (
-                                    <tr key={index}>
-                                            <td>
-                                           
-                                                <img src={file?.preview_url} alt="Product image" className="rounded-circle m-0 avatar-sm-table" />
-                                            </td>
-                                            <td> 
-                                                <ProgressBar now={progress} variant="success" className="progress-thin"></ProgressBar>
-                                            </td>
-                                            <td> 
-                                                <span className="cursor-pointer text-danger mr-2" onClick={() => this.handleSingleRemove(index)}>
-                                                    <i className="nav-icon i-Close-Window font-weight-bold"></i>
-                                                 </span>
+                              <tbody>
                                 
-                                            </td>
-                                        </tr>
-                                );})}
-                        </tbody>
-                        
-                        </table>
+                                  {
+                                  files.length ? 
+                                  
+                                  files.map((item, index) => {
+                                  let { file, uploading, error, progress, preview_url } = item;
+                                  return (
+                                      <tr key={index}>
+                                              <td>
+                                            
+                                                  <img src={file?.preview_url || preview_url} alt="Product image" className="rounded-circle m-0 avatar-sm-table" />
+                                              </td>
+                                              <td> 
+                                                  <ProgressBar now={progress} variant={progress !==  100 ? "primary"  : "success"} className="progress-thin"></ProgressBar>
+                                                  <small>{ Math.ceil(progress) || "0" }%</small>
+                                                 
 
+                                              </td>
+                                              <td> 
+                                                  <span className="cursor-pointer text-danger mr-2" onClick={() => this.handleSingleRemove(index)}>
+                                                      <i className="nav-icon i-Close-Window font-weight-bold"></i>
+                                                  </span>
+                                  
+                                              </td>
+                                          </tr>
+                                  );})
+                                
+                                  :
+
+                                  (
+                                    <tr>
+                                      <td className="text-center" colSpan="3">Please add stock images</td>
+                                    </tr>
+                                  )
+                                
+                                }
+                                    
+                              
+                                  </tbody>
+                          
+                          </table>
+
+                      </div>
                     </div>
 
                 </div>
