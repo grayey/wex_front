@@ -297,7 +297,7 @@ export default class AppMainService extends Component {
 
      /**
      * 
-     * --- CATEGORIES SECTION HERE ----
+     * --- PRODUCTS SECTION HERE ----
      * 
      */
 
@@ -334,6 +334,17 @@ export default class AppMainService extends Component {
         const url =`products/${id}/`;
         return await apiService.put(url,product);
 
+    }
+
+     /**
+     * 
+     * @param {*} product 
+     * @param {*} id 
+     * This method updates a product
+     */
+    async getProductById(id){
+        const url =`products/${id}/`;
+        return await apiService.get(url);
     }
 
     /**
@@ -378,8 +389,16 @@ export default class AppMainService extends Component {
 
       }
 
-
-
+      /**
+       * 
+       * @param {*} stockId 
+       * This method gets a stock by Id
+       */
+      async getStockById(stockId){
+        const url = `stocks/${stockId}`;
+        return await apiService.get(url);
+      }
+    
 
     /**
      * 

@@ -439,12 +439,34 @@ export class ProductsComponent extends Component{
 
 
      editProductStock =  async (viewedProductForStock)=>{
-         if(viewedProductForStock.no_of_stocks){
-             // go to backend and fetch stocks
+         let canToggle = true;
+        
+         if(viewedProductForStock.no_of_stocks){ // go to backend and fetch stocks
+             viewedProductForStock.fetching_stock = true;
+             await this.appMainService.getProductById(viewedProductForStock._id).then(
+                 (productStockResponse) =>{
+                    viewedProductForStock.fetching_stock = false;
+                     viewedProductForStock = productStockResponse;
+                    
+                 }
+             ).catch((error)=>{
+                const errorNotification = {
+                    type:'error',
+                    msg:utils.processErrors(error)
+                }
+                new AppNotification(errorNotification)
+                viewedProductForStock.fetching_stock = false;
+                canToggle = false;
+             })
          }
+    
          const productStocks = viewedProductForStock.stocks || [];
-         this.setState({viewedProductForStock, productStocks})
-         this.toggleModal('manage_stock');
+         productStocks.reverse(); // LIFO
+          
+         this.setState({viewedProductForStock, productStocks});
+
+          return canToggle ?  this.toggleModal('manage_stock') : null;
+    
      }
 
      /**
@@ -517,7 +539,7 @@ export class ProductsComponent extends Component{
                 isSaving = false;
                 const successNotification = {
                     type:'success',
-                    msg:`New stock added for ${viewedProductForStock.name}`
+                    msg:`Added new stock for ${viewedProductForStock.name}.`
                 }
                 productStocks.unshift(stocksResponse);
                 new AppNotification(successNotification)
@@ -866,7 +888,7 @@ export class ProductsComponent extends Component{
                     
 
                     <Modal.Footer>
-                        <button className="btn btn-secondary_custom mr-3">Close </button>
+                        <button className="btn btn-secondary_custom mr-3" onClick={()=>{ this.toggleModal('manage_stock')}}>Close </button>
                         {/* <button className="btn btn-info_custom">Save Stocks</button> */}
                    </Modal.Footer>
                     
@@ -1692,13 +1714,16 @@ export class ProductsComponent extends Component{
                                                        
                                                        <td>
                                                            <div className="btn-group">
-                                                           <button onClick={()=>this.editProductStock(product)} className={`btn  ${product?.no_of_stocks ? "btn-info_custom":"btn-danger breathe"} btn-sm`}>
+                                                           <button disabled={product?.fetching_stock} onClick={()=>this.editProductStock(product)} className={`btn  ${product?.no_of_stocks ? "btn-info_custom":"btn-danger breathe"} btn-sm`}>
                                                                
                                                            {product?.no_of_stocks ? "Manage Stock" :"Add Stock!"} 
                                                                
                                                            </button>
                                                            <button  disabled className="btn btn-warning text-white btn-sm">
-                                                              ({product?.no_of_stocks})
+                                                               {
+                                                                   product?.fetching_stock ? <FaCog className="spin"/> : `(${product?.no_of_stocks})`
+                                                               }
+                                                              
                                                            </button>
                                                            
                                                            </div>

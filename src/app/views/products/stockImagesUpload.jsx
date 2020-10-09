@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Breadcrumb, SimpleCard } from "@gull";
 import { Button, Card, Row, Col, ProgressBar } from "react-bootstrap";
 import FirebaseService  from "../../services/firebase/firebaseAuthService";
+import { FaCheck, FaEllipsisH } from "react-icons/fa";
 
 class StockImagesUpload extends Component {
 
@@ -13,7 +14,8 @@ class StockImagesUpload extends Component {
     dragClass: "",
     files: [],
     statusList: [],
-    queProgress: 0
+    queProgress: 0,
+    ongoingAction:""
   };
 
   handleFileSelect = event => {
@@ -153,6 +155,16 @@ class StockImagesUpload extends Component {
     return URL.createObjectURL(file);
   }
 
+  setActionIcon = (progress) => {
+    let progressIcon = (<i className="nav-icon i-Close-Window font-weight-bold"></i>);
+    if(progress && progress < 99) return <FaEllipsisH/>;
+    if(progress && progress > 99) return <FaCheck/>
+
+    return progressIcon;
+
+  }
+
+
   uploadImagesToFirebase = async () => {
     
     const { files } = this.state;
@@ -174,8 +186,9 @@ class StockImagesUpload extends Component {
    * this method uploads images to firebase
    */
   uploadImageAsPromise = async (imageFile, i) => {
-    console.log(imageFile, "Image file")
-    const { files } = this.state;
+    // console.log(imageFile, "Image file")
+    let { files } = this.state;
+
     const {name, preview_url} = imageFile;
     const date = new Date();
     const path = `documents/${name.split(' ').join('')}-${date.getTime()}`;
@@ -193,17 +206,14 @@ class StockImagesUpload extends Component {
                    files[i] = imageFile;
                    this.setState({files});
 
-                   
-
-
-                   console.log("Upload percentage", percentage)
+                  //  console.log("Upload percentage", percentage)
           },
           (err)=>{
               reject(err);
           },
           ()=>{
               var downloadURL = task.snapshot.downloadURL;
-              console.log("Download url", task.snapshot)
+              // console.log("Download url", task.snapshot)
               resolve(downloadURL);
           }
       );
@@ -216,11 +226,12 @@ class StockImagesUpload extends Component {
   async componentWillReceiveProps(nextProps) {
     if (this.props !== nextProps) {
       const {imagesCommand} = nextProps;
-      let {files} = this.state;
+      let {files, ongoingAction} = this.state;
 
       if(imagesCommand == 'clr' && this.props.imagesCommand !== imagesCommand){ // clearImages
         files = [];
-        this.setState({files});
+        ongoingAction = "clr";
+        this.setState({files, ongoingAction});
         this.props.setImages(files);
 
       }else if(imagesCommand == 'upld'){
@@ -329,8 +340,9 @@ class StockImagesUpload extends Component {
 
                                               </td>
                                               <td> 
-                                                  <span className="cursor-pointer text-danger mr-2" onClick={() => this.handleSingleRemove(index)}>
-                                                      <i className="nav-icon i-Close-Window font-weight-bold"></i>
+                                                  <span className={`cursor-pointer text-${progress && progress > 99 ? "success" : progress && progress < 99 ? "primary" : "danger"} mr-2`} onClick={() => this.handleSingleRemove(index)}>
+                                                      {/* <i className="nav-icon i-Close-Window font-weight-bold"></i> */}
+                                                      {this.setActionIcon(progress)}
                                                   </span>
                                   
                                               </td>
