@@ -1,6 +1,7 @@
 import moment from "moment";
 import * as titleCase from "titlecase";
 
+
 export function debounce(func, wait, immediate) {
   var timeout;
   return function() {
@@ -13,6 +14,10 @@ export function debounce(func, wait, immediate) {
     }, wait);
     if (immediate && !timeout) func.apply(context, args);
   };
+}
+
+export function setProgressBar(departmentaggregate){
+
 }
 
 export function isMobile() {
@@ -165,34 +170,89 @@ export function initCodeViewer() {
 
 export function formatDate(date){
 
-  return moment(date).format('MMM D, YYYY')
-    
+  return moment(date).format('Do MMM, YYYY')
+
 }
 
 export function processErrors(error){
   let errorMessage = '';
+  const errorObject = {
+    '400':(e_o) => Object.keys(e_o).map(err_key => `${e_o[err_key]}`).join(`\r\n`),
+    '401':(u_o) => u_o.detail || u_o,
+    '403':(r_o) => r_o.detail || r_o,
+    '404':(n_o)=> n_o,
+    '500':(s_o)=> s_o,
+  }
 
   if(error){
-    const errorData = error.data;
+  const errorData = error.data || {};
   const errorStatus = error.status;
-  if(errorStatus == 403){
-    errorMessage = errorData.detail;
-  }else if(errorStatus == 400){
-    for(let key in errorData){
-      errorMessage += `${errorData[key][0].replace('This',key)}\r\n`
+
+  const err_value = errorStatus ?  errorObject[errorStatus.toString()](errorData) : errorData;
+
+  const response_object = err_value.response || err_value ||  {data:{messgae:"An unknown error occurred!"}};
+
+  const response_is_string = typeof(response_object) == 'string';
+  const response_object_data = response_is_string ? response_object :  response_object.data || response_object;
+
+  if(!response_is_string){
+    for(let key in  response_object_data){
+      let msg_line = "";
+      try{
+        const error_value = response_object_data[key];
+         msg_line = error_value instanceof Array ? error_value.toString(): error_value;
+      }catch(e){
+        console.log('EEE', e)
+      }
+      errorMessage += `${msg_line}\r\n`
     }
+  }else{
+    errorMessage = response_object;
   }
+
+  // const errorStatus = error.status;
+  // if(errorStatus == 403){
+  //   errorMessage = errorData.detail;
+  // }else if(errorStatus == 400){
+  //   for(let key in errorData){
+  //     const msg_line = (typeof errorData[key] == 'object') ? errorData[key][0].replace('This',key): errorData[key]
+  //     errorMessage += `${msg_line}\r\n`
+  //   }
+  // }
   }else{
     errorMessage = 'Server has gone away!. Please try again in a bit.'
   }
-  
+
   return errorMessage;
 
 }
 
+export function formatNumber(numberValue, toDecimal=true, no_places = 2){
+  let val = numberValue || 0;
+  let stringValue = toDecimal ? parseFloat(val).toFixed(no_places) : val.toString();
+  return stringValue.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+}
 export function isValid(schema,initialValues){
     return schema.isValidSync(initialValues);
-} 
+}
+
+export function getGraphColors(){
+  let colors = [];
+  while (colors.length < 100) {
+    let color = Math.floor((Math.random()*1000000)+1);
+    const colorCaptured = colors.indexOf(color) >= 0;
+    if(!colorCaptured){
+      colors.push("#" + ("000000" + color.toString(16)).slice(-6));
+
+    }
+
+    // while (colors.indexOf(color) >= 0);
+  }
+  return colors;
+
+}
+
 
 export function toTiltle(stringVal){
   return titleCase(stringVal)

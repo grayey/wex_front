@@ -11,10 +11,8 @@ const Footer = () => {
               <strong>WEX Commerce</strong>
             </p>
             <p>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Libero
-              quis beatae officia saepe perferendis voluptatum minima eveniet
-              voluptates dolorum, temporibus nisi maxime nesciunt totam
-              repudiandae commodi sequi dolor quibusdam sunt.
+            Food Waste Utilization platform
+            (Individuals, cooperatives, businesses)
             </p>
           </div>
         </div>
@@ -26,13 +24,13 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Buy Gull React
+            Explore
           </a>
           <span className="flex-grow-1"></span>
           <div className="d-flex align-items-center">
             <img className="logo" src="/assets/images/logo.png" alt="" />
             <div>
-              <p className="m-0">&copy; 2020 WEX</p>
+              <p className="m-0">&copy; 2021 WEX</p>
               <p className="m-0">All rights reserved</p>
             </div>
           </div>

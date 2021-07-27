@@ -223,6 +223,7 @@ export class RolesComponent extends Component{
      * 
      */
     viewRole = (event, role) => {
+        
         event.preventDefault();
         const newRoute = `/dashboard/roles/${role._id}`
         this.setState({ navigate:true, newRoute })

@@ -4,6 +4,7 @@ import dashboardRoutes from "./views/dashboard/dashboardRoutes";
 import uiKitsRoutes from "./views/ui-kits/uiKitsRoutes";
 import formsRoutes from "./views/forms/formsRoutes";
 import sessionsRoutes from "./views/sessions/sessionsRoutes";
+import PublicLayout from "./PublicLayout";
 import AuthGuard from "./auth/AuthGuard";
 import widgetsRoute from "./views/widgets/widgetsRoute";
 import chartsRoute from "./views/charts/chartsRoute";
@@ -23,6 +24,8 @@ import rolesRoutes from "./views/roles/rolesRoutes";
 import tasksRoutes from "./views/tasks/tasksRoutes";
 import usersRoutes from "./views/users/usersRoutes";
 import productsRoutes from "./views/products/productsRoutes";
+import bidRoutes from "./views/bids/bidsRoutes";
+import walletTransactionsRoutes from "./views/wallet-and-transactions/walletTransactionRoutes";
 
 
 const redirectRoute = [
@@ -41,9 +44,9 @@ const errorRoute = [
 ];
 
 const routes = [
-  ...sessionsRoutes,
+  // ...sessionsRoutes,
   {
-    path: "/",
+    path: "/dashboard",
     component: AuthGuard,
     routes: [
       ...dashboardRoutes,
@@ -52,6 +55,8 @@ const routes = [
       ...rolesRoutes,
       ...usersRoutes,
       ...productsRoutes,
+      ...bidRoutes,
+      ...walletTransactionsRoutes,
       ...uiKitsRoutes,
       ...formsRoutes,
       ...widgetsRoute,
@@ -67,14 +72,19 @@ const routes = [
       ...calendarRoutes,
       ...ecommerceRoutes,
       ...contactRoutes,
-
-
-      // Load these last
-      ...redirectRoute,
-      ...errorRoute,
-      
     ]
-  }
+  },
+  {
+    path:"/",
+    component:PublicLayout,
+    routes:[
+      ...sessionsRoutes,
+          // Load these last
+          ...redirectRoute,
+          ...errorRoute,
+    ]
+  },
+ 
 ];
 
 export default routes;

@@ -19,7 +19,6 @@ class FirebaseAuthService {
     // UNCOMMENT IF YOU WANT TO USE FIREBASE
 
     this.init();
-    console.log('Called')
     // this.auth = firebase.auth();
     // this.firestore = firebase.firestore();
 

@@ -210,6 +210,9 @@ export class UsersComponent extends Component{
         let isSaving = true;
         let updateMsg = 'Updating';
         this.setState({isSaving, updateMsg})
+        console.log({
+            updateUserForm
+        })
 
         this.appMainService.updateUser(updateUserForm, editedUser._id).then(
             (updatedUser)=>{
@@ -477,7 +480,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="full_name"
                                         value={values.full_name}
-                                        onChange={(event)=>this.handleChange(event), handleChange}
+                                        onChange={(event)=>this.handleChange(event, 'edit'), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -506,7 +509,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="username"
                                         value={values.username}
-                                        onChange={(event)=>this.handleChange(event), handleChange}
+                                        onChange={(event)=>this.handleChange(event,'edit'), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -535,7 +538,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="email"
                                         value={values.email}
-                                        onChange={(event)=>this.handleChange(event), handleChange}
+                                        onChange={(event)=>this.handleChange(event,'edit'), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -564,7 +567,7 @@ export class UsersComponent extends Component{
                                         placeholder=""
                                         name="phone_no"
                                         value={values.phone_no}
-                                        onChange={(event)=>this.handleChange(event), handleChange}
+                                        onChange={(event)=>this.handleChange(event,'edit'), handleChange}
                                         onBlur={handleBlur}
                                         required
                                         />
@@ -587,7 +590,7 @@ export class UsersComponent extends Component{
                                             <b>User Type<span className='text-danger'>*</span></b>
                                         </label>
                                         <select className="form-control" id="user_type"
-                                         onChange={(event)=>this.handleChange(event), handleChange}
+                                         onChange={(event)=>this.handleChange(event,'edit'), handleChange}
                                          value={values.user_type}
                                          onBlur={handleBlur}
                                          name="user_type"
@@ -621,7 +624,7 @@ export class UsersComponent extends Component{
                                             <b>Role<span className='text-danger'>*</span></b>
                                         </label>
                                         <select className="form-control" id="role_id"
-                                         onChange={(event)=>this.handleChange(event), handleChange}
+                                         onChange={(event)=>this.handleChange(event,'edit'), handleChange}
                                          value={values.role_id}
                                          onBlur={handleBlur}
                                          name="role_id"
@@ -1002,7 +1005,7 @@ export class UsersComponent extends Component{
                                                             <b>{index+1}</b>.
                                                         </td>
                                                         <td>
-                                                            <Link  key={user._id} to={`/dashboard/users/${user._id}}`} onClick={
+                                                            <Link  key={user._id} to={`/dashboard/users/${user._id}`} onClick={
                                                                 (event)=>{
                                                                     this.viewUser(event, user)
                                                                 }

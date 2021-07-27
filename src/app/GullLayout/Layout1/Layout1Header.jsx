@@ -9,13 +9,14 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import {
   setLayoutSettings,
-  setDefaultSettings
+  setDefaultSettings,
 } from "app/redux/actions/LayoutActions";
 import { logoutUser } from "app/redux/actions/UserActions";
 import { withRouter } from "react-router-dom";
 
 import { merge } from "lodash";
 import MegaMenu from "@gull/components/MegaMenu";
+import localStorageService from "app/services/localStorageService";
 
 class Layout1Header extends Component {
   state = {
@@ -23,33 +24,33 @@ class Layout1Header extends Component {
       {
         icon: "i-Shop-4",
         link: "#",
-        text: "Home"
+        text: "Home",
       },
       {
         icon: "i-Library",
         link: "#",
-        text: "Ui Kits"
+        text: "Ui Kits",
       },
       {
         icon: "i-Drop",
         link: "#",
-        text: "Apps"
+        text: "Apps",
       },
       {
         icon: "i-File-Clipboard-File--Text",
         link: "#",
-        text: "Form"
+        text: "Form",
       },
       {
         icon: "i-Checked-User",
         link: "#",
-        text: "Sessions"
+        text: "Sessions",
       },
       {
         icon: "i-Ambulance",
         link: "#",
-        text: "Support"
-      }
+        text: "Support",
+      },
     ],
     notificationList: [
       {
@@ -58,7 +59,7 @@ class Layout1Header extends Component {
         description: "James: Hey! are you busy?",
         time: "2019-10-30T02:10:18.931Z",
         color: "primary",
-        status: "New"
+        status: "New",
       },
       {
         icon: "i-Receipt-3",
@@ -66,7 +67,7 @@ class Layout1Header extends Component {
         description: "1 Headphone, 3 iPhone",
         time: "2019-03-10T02:10:18.931Z",
         color: "success",
-        status: "New"
+        status: "New",
       },
       {
         icon: "i-Empty-Box",
@@ -74,7 +75,7 @@ class Layout1Header extends Component {
         description: "1 Headphone, 3 iPhone",
         time: "2019-05-10T02:10:18.931Z",
         color: "danger",
-        status: "3"
+        status: "3",
       },
       {
         icon: "i-Data-Power",
@@ -82,10 +83,11 @@ class Layout1Header extends Component {
         description: "Server rebooted successfully",
         time: "2019-03-10T02:10:18.931Z",
         color: "success",
-        status: "3"
-      }
+        status: "3",
+      },
     ],
-    showSearchBox: false
+    showSearchBox: false,
+    authUser: {},
   };
 
   handleMenuClick = () => {
@@ -97,9 +99,9 @@ class Layout1Header extends Component {
             open: settings.layout1Settings.leftSidebar.secondaryNavOpen
               ? true
               : !settings.layout1Settings.leftSidebar.open,
-            secondaryNavOpen: false
-          }
-        }
+            secondaryNavOpen: false,
+          },
+        },
       })
     );
   };
@@ -117,15 +119,22 @@ class Layout1Header extends Component {
       merge({}, settings, {
         layout1Settings: {
           searchBox: {
-            open: true
-          }
-        }
+            open: true,
+          },
+        },
       })
     );
   };
 
+  componentDidMount = () => {
+    const authUser = localStorageService.getItem('AUTH_USER');
+    this.setState({
+      authUser
+    })
+  };
+
   render() {
-    let { shorcutMenuList = [], notificationList = [] } = this.state;
+    let { shorcutMenuList = [], notificationList = [], authUser } = this.state;
 
     return (
       <div className="main-header">
@@ -180,7 +189,7 @@ class Layout1Header extends Component {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <div className="menu-icon-grid">
-                {shorcutMenuList.map(menu => (
+                {shorcutMenuList.map((menu) => (
                   <Link key={menu.text} to={menu.link}>
                     <i className={menu.icon}></i> {menu.text}
                   </Link>
@@ -247,7 +256,7 @@ class Layout1Header extends Component {
               </DropdownToggle>
               <DropdownMenu>
                 <div className="dropdown-header">
-                  <i className="i-Lock-User mr-1"></i> Timothy Carlson
+                  <i className="i-Lock-User mr-1"></i> {authUser?.username}
                 </div>
                 <Link to="/" className="dropdown-item cursor-pointer">
                   Account settings
@@ -276,21 +285,21 @@ Layout1Header.propTypes = {
   setDefaultSettings: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
-  settings: PropTypes.object.isRequired
+  settings: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   setDefaultSettings: PropTypes.func.isRequired,
   setLayoutSettings: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
   user: state.user,
-  settings: state.layout.settings
+  settings: state.layout.settings,
 });
 
 export default withRouter(
   connect(mapStateToProps, {
     setLayoutSettings,
     setDefaultSettings,
-    logoutUser
+    logoutUser,
   })(Layout1Header)
 );

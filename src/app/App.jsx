@@ -1,6 +1,6 @@
 import "../fake-db";
 import React, { Suspense } from "react";
-import "../styles/app/app.scss";
+// import "../styles/app/app.scss";
 
 import { Provider } from "react-redux";
 import { Router } from "react-router-dom";

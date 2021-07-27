@@ -130,6 +130,7 @@ class AppCarousel extends Component {
                     Add <code>{`fade={true}`}</code> to your carousel component
                     to animate slides with a fade transition instead of a slide.
                   </p>
+                 
                   <Carousel fade={true}>
                     {carouselImageList.map((img, ind) => (
                       <Carousel.Item key={ind}>
@@ -150,6 +151,7 @@ class AppCarousel extends Component {
                       </Carousel.Item>
                     ))}
                   </Carousel>
+               
                 </div>
               </div>
             </div>

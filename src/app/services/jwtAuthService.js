@@ -62,12 +62,12 @@ class JwtAuthService {
   }
 
   setAuthUser = (token) => {    
-    // localStorageService.setItem("auth_user", user);
     this.setSession(token);
   }
 
   removeUser = () => {
     localStorage.removeItem("auth_user");
+    localStorage.removeItem("AUTH_USER");
   }
 }
 

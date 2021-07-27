@@ -7,116 +7,107 @@ import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import AppMainService from "../../services/appMainService";
+import localStorageService from "../../services/localStorageService";
 import AppNotification from "../../appNotifications";
 import * as utils from "@utils";
 import { FaCog } from "react-icons/fa";
 
-
-
-
-
 const SigninSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required("username or email is required"),
+  email: yup.string().required("username or email is required"),
   password: yup
     .string()
     .min(8, "Password must be 8 character long")
-    .required("password is required")
+    .required("password is required"),
 });
 
 class Signin extends Component {
-
   appMainService;
 
   constructor(props) {
-    super(props)
+    super(props);
     this.appMainService = new AppMainService();
-
   }
-
 
   state = {
     email: "",
     password: "",
-    navigate:false,
-    isSubmitting:false,
-    successUrl:"dashboard/v1"
+    navigate: false,
+    isSubmitting: false,
+    successUrl: "dashboard/v1",
   };
 
- 
-
-
-  handleChange = event => {
+  handleChange = (event) => {
     event.persist();
     this.setState({ [event.target.name]: event.target.value });
   };
 
   handleSubmit = (value) => {
-
-    let {isSubmitting} = this.state;
+    let { isSubmitting } = this.state;
     isSubmitting = !isSubmitting;
-    this.setState({isSubmitting});
-    const {email, password} = value;
+    this.setState({ isSubmitting });
+    const { email, password } = value;
     const loginObject = {
-      username:email,
-      password
-    }
-    this.appMainService.logUserIn(loginObject).then(
-      (userResponse)=>{
+      username: email,
+      email,
+      password,
+    };
+    this.appMainService
+      .logUserIn(loginObject)
+      .then((userResponse) => {
         isSubmitting = !isSubmitting;
-        this.setState({isSubmitting});
+        this.setState({ isSubmitting });
 
         const notification = {
-          type:'',
-          message:'',
-          timeOut:null
-        }
-       
-        if(userResponse.statusCode == 401){
-          notification.type = 'error';
-          notification.msg = userResponse.message
-        return new AppNotification(notification);
+          type: "",
+          message: "",
+          timeOut: null,
+        };
+
+        if (userResponse.statusCode == 401) {
+          notification.type = "error";
+          notification.msg = userResponse.message;
+          return new AppNotification(notification);
         }
 
-        notification.type = 'success';
+        notification.type = "success";
         notification.msg = `Welcome ${userResponse.username}!`;
         notification.timeOut = 1000;
-        this.setState({navigate:true})
-          return new AppNotification(notification);
-      }
-  ).catch((error)=>{
-      this.setState({isSubmitting})
-      const errorNotification = {
-          type:'error',
-          msg:utils.processErrors(error)
-      }
-      new AppNotification(errorNotification)
-      
-  })
+        localStorageService.setItem("AUTH_USER", userResponse);
+        this.setState({ navigate: true });
+        // this.props.loginWithEmailAndPassword(loginObject);
+        console.log({ userResponse });
 
-    
-    
+        return new AppNotification(notification);
+      })
+      .catch((error) => {
+        this.setState({ isSubmitting });
+        const errorNotification = {
+          type: "error",
+          msg: utils.processErrors(error),
+        };
+        new AppNotification(errorNotification);
+      });
   };
 
-  isEmail = (text) =>{
-
-    const mailFormat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    return text.match(mailFormat)
-
-  }
+  isEmail = (text) => {
+    const mailFormat =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    return text.match(mailFormat);
+  };
 
   render() {
-    return this.state.navigate ? <Redirect to={this.state.successUrl}/> : (
+    return this.state.navigate ? (
+      <Redirect to={this.state.successUrl} />
+    ) : (
       <div
         className="auth-layout-wrap"
         style={{
           // backgroundImage: "url(/assets/images/photo-wide-4.jpg)"
-          backgroundColor:"transparent !important"
+          backgroundColor: "transparent !important",
         }}
       >
         <div className="auth-content">
-          <div className={`${this.props?.public ? "cardx" : "card"} o-hidden`} >
+          <div className={`${this.props?.public ? "cardx" : "card"} o-hidden`}>
             <div className="row">
               <div className="col-md-6">
                 <div className="p-4">
@@ -136,11 +127,13 @@ class Signin extends Component {
                       handleChange,
                       handleBlur,
                       handleSubmit,
-                      isSubmitting
+                      isSubmitting,
                     }) => (
                       <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                          <label htmlFor="email">Username <b>OR</b> Email</label>
+                          <label htmlFor="email">
+                            Username <b>OR</b> Email
+                          </label>
                           <input
                             className="form-control form-control-rounded position-relative"
                             type="text"
@@ -176,7 +169,10 @@ class Signin extends Component {
                           type="submit"
                           disabled={this.state.isSubmitting}
                         >
-                          Sign In {this.state.isSubmitting ? <FaCog className="fa-spin"/> : null}
+                          Sign In{" "}
+                          {this.state.isSubmitting ? (
+                            <FaCog className="fa-spin" />
+                          ) : null}
                         </button>
                       </form>
                     )}
@@ -193,7 +189,7 @@ class Signin extends Component {
                 className="col-md-6 text-center "
                 style={{
                   backgroundSize: "cover",
-                  backgroundImage: "url(/assets/images/photo-long-3.jpg)"
+                  backgroundImage: "url(/assets/images/photo-long-3.jpg)",
                 }}
               >
                 <div className="pr-3 auth-right">
@@ -220,11 +216,11 @@ class Signin extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   loginWithEmailAndPassword: PropTypes.func.isRequired,
-  user: state.user
+  user: state.user,
 });
 
 export default connect(mapStateToProps, {
-  loginWithEmailAndPassword
+  loginWithEmailAndPassword,
 })(Signin);

@@ -15,7 +15,9 @@ class StockImagesUpload extends Component {
     files: [],
     statusList: [],
     queProgress: 0,
-    ongoingAction:""
+    ongoingAction:"",
+    uploadProgress:0,
+    imagesUploaded:0,
   };
 
   handleFileSelect = event => {
@@ -169,13 +171,17 @@ class StockImagesUpload extends Component {
     
     const { files } = this.state;
     const imageFiles = files.map((f)=> f.file);
+    
+    
 
     for (var i = 0; i < imageFiles.length; i++) {
       var imageFile = imageFiles[i];
       await this.uploadImageAsPromise(imageFile,i).then((res)=>{
        console.log(res, "Upload response");
+       
         });
   }
+  this.setState({imagesUploaded:0, uploadProgress:0});
     
 
   }
@@ -187,9 +193,12 @@ class StockImagesUpload extends Component {
    */
   uploadImageAsPromise = async (imageFile, i) => {
     // console.log(imageFile, "Image file")
-    let { files } = this.state;
+    let { files, imagesUploaded, uploadProgress } = this.state;
+    imagesUploaded = i +1;
+    const noOfImages = files.length;
+    
 
-    const {name, preview_url} = imageFile;
+    const {name} = imageFile;
     const date = new Date();
     const path = `documents/${name.split(' ').join('')}-${date.getTime()}`;
     const fileRef = FirebaseService.storage.ref(path);
@@ -202,18 +211,24 @@ class StockImagesUpload extends Component {
            (snapshot) => {
               var percentage = snapshot.bytesTransferred / snapshot.totalBytes * 100;
                    imageFile['progress'] = percentage;
-                   imageFile['preview_url'] = preview_url;
+                   uploadProgress = Math.round(percentage) ? imagesUploaded /noOfImages * percentage : uploadProgress ; // something wrong here
                    files[i] = imageFile;
-                   this.setState({files});
-
-                  //  console.log("Upload percentage", percentage)
+                   this.setState({files,imagesUploaded,uploadProgress});
           },
           (err)=>{
               reject(err);
           },
           ()=>{
-              var downloadURL = task.snapshot.downloadURL;
-              // console.log("Download url", task.snapshot)
+              var downloadURL = fileRef.getDownloadURL().then(
+                (url)=>{
+                  imageFile['preview_url'] = url;
+                  files[i] = imageFile;
+                  this.setState({files})
+                }).catch(
+                  (error)=>{
+                  console.error('Download Url error', error)
+                });
+              
               resolve(downloadURL);
           }
       );
@@ -310,13 +325,26 @@ class StockImagesUpload extends Component {
                     <div className="table-responsive">
                       <div style={{"maxHeight":"200px", "overflowY":"scroll"}}>
                          
-                          <table className="table">
+                          <table className="table table-striped">
                               <thead>
                                   <tr className="ul-widget6__tr--sticky-th">
                                       <th>Image</th>
                                       <th>Progress</th>
                                       <th>Action</th>
                                   </tr>
+
+                                  {
+                                    this.state.uploadProgress ? (
+                                      <tr className="ul-widget6__tr--sticky-th" >
+                                      <td colSpan="3">
+                                        <ProgressBar now={this.state.uploadProgress} variant={Math.ceil(this.state.uploadProgress) !==  100 ? "primary"  : "success"} className="progress-thin"></ProgressBar>
+                                        <span>{this.state.imagesUploaded}/{this.state.files.length}</span>
+                                      </td>
+                                    </tr>
+                                    ):null
+
+                                  }
+                               
                                   </thead>
                               
 
@@ -361,6 +389,7 @@ class StockImagesUpload extends Component {
                                     
                               
                                   </tbody>
+                                 
                           
                           </table>
 

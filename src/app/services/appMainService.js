@@ -1,11 +1,15 @@
-import { Component } from 'react';
 import * as apiService from './apiService';
+import localStorageService from './localStorageService';
 
 
-export default class AppMainService extends Component {
 
-    constructor(props) {
-        super(props);
+
+export default class AppMainService {
+
+    constructor() {
+        this.authUser = localStorageService.getItem('AUTH_USER');
+
+
     }
 
 
@@ -306,12 +310,16 @@ export default class AppMainService extends Component {
       * This method returns a list of all products
       */
      async getAllProducts(){
-        const url = 'products';
+        const url = `products`;
         return await apiService.get(url);
     }
 
 
-    
+    async getProductsByOwnerId(){
+        if(this.authUser && this.authUser?.user_type == 'ADMIN') return this.getAllProducts();
+        const url = `products/owner/${this.authUser?._id}`;
+        return await apiService.get(url);
+    }
     
 
     /**
@@ -342,10 +350,11 @@ export default class AppMainService extends Component {
      * @param {*} id 
      * This method updates a product
      */
-    async getProductById(id){
-        const url =`products/${id}/`;
+    async getProductById(idOrSlug){
+        const url =`products/${idOrSlug}/`;
         return await apiService.get(url);
     }
+
 
     /**
      * 
@@ -398,7 +407,15 @@ export default class AppMainService extends Component {
         const url = `stocks/${stockId}`;
         return await apiService.get(url);
       }
-    
+
+      
+      async featureStock(stock){
+          const url = `products/stocks/feature/${stock._id}`;
+          return await apiService.put(url,stock);
+      }
+
+
+
 
     /**
      * 
