@@ -25,6 +25,7 @@ import tasksRoutes from "./views/tasks/tasksRoutes";
 import usersRoutes from "./views/users/usersRoutes";
 import productsRoutes from "./views/products/productsRoutes";
 import bidRoutes from "./views/bids/bidsRoutes";
+import userChatRoutes from "./views/chats/chatRoutes";
 import walletTransactionsRoutes from "./views/wallet-and-transactions/walletTransactionRoutes";
 
 
@@ -57,6 +58,8 @@ const routes = [
       ...productsRoutes,
       ...bidRoutes,
       ...walletTransactionsRoutes,
+      ...userChatRoutes,
+      
       ...uiKitsRoutes,
       ...formsRoutes,
       ...widgetsRoute,

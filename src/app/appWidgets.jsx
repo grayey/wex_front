@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as Mapbox from "mapbox-gl";
+// import { Geocoder } from "@mapbox/react-geocoder";
 import { APP_ENVIRONMENT } from "./environment/environment";
 import { Dropdown, Modal, ProgressBar } from "react-bootstrap";
 
@@ -197,12 +198,19 @@ export const BidRatingSummary = ({ bid, fullReview }) => {
       }}
     ></Rating>
   );
-  return fullReview ? (
-    <div>
-      NAMMAMMAMA
-    </div>
-  ) : <Stars />;
+  return fullReview ? <div>NAMMAMMAMA</div> : <Stars />;
 };
 
-export const RenderMap = ({ container }) =>
-  new Mapbox.Map({ container, style: "mapbox://styles/mapbox/streets-v11" });
+export const RenderMap = (props) =>
+  new Mapbox.Map({
+    ...props,
+    zoom: 0,
+    style: "mapbox://styles/mapbox/streets-v11",
+  });
+
+export const MapGeocoder = ({ selectCallBack }) => {
+  return (
+    // <Geocoder accessToken={APP_ENVIRONMENT.mapbox_token} onSelect={(e) => selectCallBack(e)}  />
+    null
+  );
+};

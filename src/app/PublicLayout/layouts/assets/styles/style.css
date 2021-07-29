@@ -82,16 +82,19 @@
 /* ------------------------------------------------------------------- */
 /* 01. Import Section
 ---------------------------------------------------------------------- */
-@import url("bootstrap-grid.css");
+/* @import url("bootstrap-grid.css"); */
+
+
+
 /* Default Reset, Typography, Forms, Responsive Grid etc. */
- @import url("icons.css");							
+ @import url("icons.css");														
 /* Webfont Icons: FontAwesome, Line, Simple Line */
 /* @import url("plugins/revolutionslider.css");		 */
 /* Revolution Slider Style Sheets */
 
 
-@import url('https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700');
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:500,600,700');
+/* @import url('https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:500,600,700'); */
 
 
 /** 
@@ -112,6 +115,27 @@ body{
 .row {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+}
+
+.clearfix:before,
+.clearfix:after,
+.dl-horizontal dd:before,
+.dl-horizontal dd:after,
+.container:before,
+.container:after,
+.container-fluid:before,
+.container-fluid:after,
+.row:before,
+.row:after {
+  content: " ";
+  display: table;
+}
+.clearfix:after,
+.dl-horizontal dd:after,
+.container:after,
+.container-fluid:after,
+.row:after {
+  clear: both;
 }
 /***
   LANDING PAGE SEARCH SECTION
@@ -224,7 +248,7 @@ input[type="email"],
 input[type="number"],
 textarea,
 select {
-	height: 51px;
+	/* height: 51px;
 	line-height: 51px;
 	padding: 0 20px;
 	outline: none;
@@ -240,7 +264,7 @@ select {
 	box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.06);
 	font-weight: 500;
 	opacity: 1;
-	border-radius: 3px;
+	border-radius: 3px; */
 }
 
 input:-webkit-autofill:focus,
@@ -322,11 +346,11 @@ textarea {
 
 label,
 legend {
-	display: block;
+	/* display: block;
 	font-weight: bold;
 	font-size: 15px;
 	font-weight: normal;
-	margin-bottom: 8px;
+	margin-bottom: 8px; */
 }
 
 
@@ -1919,7 +1943,10 @@ em.mm-counter+a.mm-fullsubopen+span {
 	#header-container.header-style-2 .left-side,
 	#header-container.header-style-2 .right-side,
 	.right-side,
-	.left-side { width: 100%; }
+	.left-side { width: 100%; 
+	
+	
+	}
 
 	#top-bar .right-side .social-icons { float: left; position: relative; z-index: 9; }
 

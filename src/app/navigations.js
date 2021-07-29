@@ -720,12 +720,18 @@ const mainMenu = [
     type: "link",
     canDisplay: ["BUYER"],
   },
-
   {
     name: "Wallet & Transactions",
     description: "Lorem ipsum dolor sit.",
     icon: "i-Bar-Chart",
     path: "/dashboard/wallet-and-transactions",
+    type: "link",
+    canDisplay: ["BUYER", "SELLER"],
+  },
+  {
+    icon: "i-Speach-Bubble-3",
+    name: "My chats",
+    path: "/dashboard/my-chats",
     type: "link",
     canDisplay: ["BUYER", "SELLER"],
   },

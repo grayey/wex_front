@@ -11,6 +11,7 @@ import localStorageService from "../../services/localStorageService";
 import AppNotification from "../../appNotifications";
 import * as utils from "@utils";
 import { FaCog } from "react-icons/fa";
+import "./sessions.css";
 
 const SigninSchema = yup.object().shape({
   email: yup.string().required("username or email is required"),
@@ -114,7 +115,12 @@ class Signin extends Component {
                   <div className="auth-logo text-center mb-4">
                     <img src="/assets/images/logo.png" alt="" />
                   </div>
-                  <h1 className="mb-3 text-18">Sign In</h1>
+                  {
+                    !this.props.public && (
+                      <h1 className="mb-3 text-18">Login</h1>
+
+                    )
+                  }
                   <Formik
                     initialValues={this.state}
                     validationSchema={SigninSchema}

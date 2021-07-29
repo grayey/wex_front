@@ -1,6 +1,6 @@
 import "../fake-db";
 import React, { Suspense } from "react";
-// import "../styles/app/app.scss";
+import "../styles/app/app.scss";
 
 import { Provider } from "react-redux";
 import { Router } from "react-router-dom";
@@ -13,23 +13,22 @@ import { renderRoutes } from "react-router-config";
 import Auth from "./auth/Auth";
 import RootRoutes from "./RootRoutes";
 import { Loading } from "@gull";
-import {
-  NotificationContainer,
-} from "react-notifications";
+import { NotificationContainer } from "react-notifications";
 
-function App() {
+const App = () => {
+  
   return (
     <AppContext.Provider value={{ routes }}>
       <Provider store={Store}>
         <Auth>
           <Suspense fallback={<Loading></Loading>}>
             <Router history={history}>{renderRoutes(RootRoutes)}</Router>
-            <NotificationContainer/>
+            <NotificationContainer />
           </Suspense>
         </Auth>
       </Provider>
     </AppContext.Provider>
   );
-}
+};
 
 export default App;

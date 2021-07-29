@@ -63,7 +63,12 @@ class Signup extends Component {
 
               <div className="col-md-6">
                 <div className="p-4">
-                  <h1 className="mb-3 text-18">Sign Up</h1>
+                  {
+                    !this.props.public && (
+                      <h1 className="mb-3 text-18">Register</h1>
+
+                    )
+                  }
                   <Formik
                     initialValues={this.state}
                     validationSchema={SignupSchema}

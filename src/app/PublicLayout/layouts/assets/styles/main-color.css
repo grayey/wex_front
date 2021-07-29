@@ -14,6 +14,18 @@ CUSTOM STARTS
     background-color: rgb(250,250,250);
 }
 
+/* .active-header{
+    min-height: 10vh !important;
+} */
+
+.active-header #header:not(.cloned) #navigation.style-1>ul>li:hover>a,
+.active-header #header:not(.cloned) #navigation.style-1>ul>li>a.current,
+.active-header #header:not(.cloned) .header-widget .button.border:hover,
+.active-header #header:not(.cloned) .header-widget .button:hover {
+    background: #F4A89A;
+    color:white;
+}
+
 /** 
 CUSTOM ENDS
 
@@ -366,6 +378,8 @@ body .user-menu ul li a:hover {
 .transparent-header #header:not(.cloned) .header-widget .button:hover {
     background: #F4A89A
 }
+
+
 
 .radio input[type=radio]:checked+label .radio-label {
     background-color: #F4A89A;

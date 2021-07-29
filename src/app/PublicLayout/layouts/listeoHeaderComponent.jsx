@@ -1,11 +1,78 @@
 import React, { useEffect, useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
 import { Link, Redirect } from "react-router-dom";
+import { Dropdown, Modal } from "react-bootstrap";
+import Signin from "app/views/sessions/Signin";
+import Signup from "app/views/sessions/Signup";
+import LaddaButton, {
+  XL,
+  EXPAND_LEFT,
+  EXPAND_RIGHT,
+  EXPAND_UP,
+  CONTRACT,
+} from "react-ladda";
 
-const ListeoHeaderComponent = () => {
+const ListeoHeaderComponent = (props) => {
+  const [activeLink, setActiveLink] = useState("/");
+  const [signupIsOpen, setsignUpIsOpen] = useState(false);
+  const [signinIsOpen, setsigninIsOpen] = useState(false);
+  const [loginOrRegister, setLoginOrRegister] = useState(false);
+  const [navigate, setNavigation] = useState(false);
+
+  const toggleSignUp = () => {
+    if (signinIsOpen) {
+      toggleSignIn();
+    }
+    setsignUpIsOpen(true);
+  };
+
+  const toggleSignIn = () => {
+    if (signupIsOpen) {
+      toggleSignUp();
+    }
+    setsigninIsOpen(true);
+  };
+
+  const loginWithEmailAndPassword = () => {
+    setNavigation(!navigate);
+  };
   return (
     <>
-      <header id="header-container">
-        <div id="header" className="not-sticky">
+      <Modal
+        show={loginOrRegister}
+        onHide={() => {
+          setLoginOrRegister(false);
+        }}
+        {...props}
+        size="lg"
+        id="loginOrRegisterModal"
+        className="login-register-container"
+      >
+        <Modal.Header closeButton className="bg_public">
+          <Modal.Title as={"h2"} className="text-primary">{signupIsOpen ? "Register" : "Login"}</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {(signupIsOpen && <Signup public={true} />) ||
+            (signinIsOpen && (
+              <Signin loginWithEmailAndPassword={loginWithEmailAndPassword} public={true} />
+            ))}
+        </Modal.Body>
+
+        <Modal.Footer className="bg_public">
+          <LaddaButton
+            className="btn btn-secondary_custom border-0 mr-2 mb-2 position-relative"
+            loading={false}
+            progress={0.5}
+            type="button"
+            onClick={() => setLoginOrRegister(false)}
+          >
+            Close
+          </LaddaButton>
+        </Modal.Footer>
+      </Modal>
+      <header id="header-container" className="active-header">
+        <div id="header" className="sticky">
           <div className="container-fluid">
             <div className="left-side">
               <div id="logo">
@@ -22,199 +89,36 @@ const ListeoHeaderComponent = () => {
 
               <nav id="navigation" className="style-1">
                 <ul id="responsive">
-                  <li>
-                    <a className="current" href="#">
-                      Home
-                    </a>
-                    <ul>
-                      <li>
-                        <a href="index-2.html">Home 1 (Modern)</a>
+                  {[
+                    {
+                      name: "Home",
+                      link: "/",
+                    },
+                    {
+                      name: "About us",
+                      link: "/about",
+                    },
+                    {
+                      name: "How it works",
+                      link: "/how-it-works",
+                    },
+                  ].map((item) => {
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          className={`${
+                            activeLink == item?.link ? "current" : ""
+                          }`}
+                          to={item?.link}
+                          onClick={() => {
+                            setActiveLink(item?.link);
+                          }}
+                        >
+                          {item?.name}
+                        </Link>
                       </li>
-                      <li>
-                        <a href="index-3.html">Home 2 (Default)</a>
-                      </li>
-                      <li>
-                        <a href="index-4.html">Home 3 (Airbnb)</a>
-                      </li>
-                      <li>
-                        <a href="index-5.html">Home 4 (Creative)</a>
-                      </li>
-                      <li>
-                        <a href="index-6.html">Home 5 (Slider)</a>
-                      </li>
-                      <li>
-                        <a href="index-7.html">Home 6 (Map)</a>
-                      </li>
-                      <li>
-                        <a href="index-8.html">Home 7 (Video)</a>
-                      </li>
-                      <li>
-                        <a href="index-9.html">Home 8 (Classic)</a>
-                      </li>
-                    </ul>
-                  </li>
-
-                  <li>
-                    <a href="#">Listings</a>
-                    <ul>
-                      <li>
-                        <a href="#">List Layout</a>
-                        <ul>
-                          <li>
-                            <a href="listings-list-with-sidebar.html">
-                              With Sidebar
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-list-full-width.html">
-                              Full Width
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-list-full-width-with-map.html">
-                              Full Width + Map
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#">Grid Layout</a>
-                        <ul>
-                          <li>
-                            <a href="listings-grid-with-sidebar-1.html">
-                              With Sidebar 1
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-grid-with-sidebar-2.html">
-                              With Sidebar 2
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-grid-full-width.html">
-                              Full Width
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-grid-full-width-with-map.html">
-                              Full Width + Map
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#">Half Screen Map</a>
-                        <ul>
-                          <li>
-                            <a href="listings-half-screen-map-list.html">
-                              List Layout
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-half-screen-map-grid-1.html">
-                              Grid Layout 1
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-half-screen-map-grid-2.html">
-                              Grid Layout 2
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#">Single Listings</a>
-                        <ul>
-                          <li>
-                            <a href="listings-single-page.html">
-                              Single Listing 1
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-single-page-2.html">
-                              Single Listing 2
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-single-page-3.html">
-                              Single Listing 3
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#">Open Street Map</a>
-                        <ul>
-                          <li>
-                            <a href="listings-half-screen-map-list-OpenStreetMap.html">
-                              Half Screen Map List Layout
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-half-screen-map-grid-1-OpenStreetMap.html">
-                              Half Screen Map Grid Layout 1
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-half-screen-map-grid-2-OpenStreetMap.html">
-                              Half Screen Map Grid Layout 2
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-list-full-width-with-map-OpenStreetMap.html">
-                              Full Width List
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-grid-full-width-with-map-OpenStreetMap.html">
-                              Full Width Grid
-                            </a>
-                          </li>
-                          <li>
-                            <a href="listings-single-page-OpenStreetMap.html">
-                              Single Listing
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-
-                  <li>
-                    <a href="#">User Panel</a>
-                    <ul>
-                      <li>
-                        <a href="dashboard.html">Dashboard</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-messages.html">Messages</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-bookings.html">Bookings</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-wallet.html">Wallet</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-my-listings.html">My Listings</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-reviews.html">Reviews</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-bookmarks.html">Bookmarks</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-add-listing.html">Add Listing</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-my-profile.html">My Profile</a>
-                      </li>
-                      <li>
-                        <a href="dashboard-invoice.html">Invoice</a>
-                      </li>
-                    </ul>
-                  </li>
+                    );
+                  })}
 
                   <li>
                     <a href="#">Pages</a>
@@ -311,14 +215,58 @@ const ListeoHeaderComponent = () => {
                   href="#sign-in-dialog"
                   className="sign-in popup-with-zoom-anim"
                 >
-                  <i className="sl sl-icon-login"></i> Sign In
+                  Invite a friend
                 </a>
-                <a
-                  href="dashboard-add-listing.html"
-                  className="button border with-icon"
-                >
-                  Add Listing <i className="sl sl-icon-plus"></i>
-                </a>
+
+                {false ? (
+                  <div class="user-menu">
+                    <div class="user-name">
+                      <span>
+                        <img src="images/dashboard-avatar.jpg" alt="" />
+                      </span>
+                      Hi, Tom!
+                    </div>
+                    <ul>
+                      <li>
+                        <a href="dashboard.html">
+                          <i class="sl sl-icon-settings"></i> Dashboard
+                        </a>
+                      </li>
+                      <li>
+                        <a href="index-2.html">
+                          <i class="sl sl-icon-power"></i> Logout
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <>
+                    <div className="btn-group">
+                      <a
+                        href="javascript:void(0)"
+                        onClick={() => {
+                          setLoginOrRegister(true);
+                          setsignUpIsOpen(false);
+                          setsigninIsOpen(true);
+                        }}
+                        className="button border with-icon"
+                      >
+                        <i className="sl sl-icon-login"></i> Login
+                      </a>
+                      <a
+                        href="javascript:void(0)"
+                        onClick={() => {
+                          setLoginOrRegister(true);
+                          setsigninIsOpen(false);
+                          setsignUpIsOpen(true);
+                        }}
+                        className="button border with-icon"
+                      >
+                        Register
+                      </a>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -468,7 +416,7 @@ const ListeoHeaderComponent = () => {
         </div>
       </header>
 
-      <div className="clearfix"></div>
+      <div className="clearfix" ></div>
     </>
   );
 };

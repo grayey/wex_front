@@ -106,7 +106,7 @@ const ListeoIndexComponent = () => {
         <div className="video-container">
           {/* poster: "images/main-search-video-poster.jpg" */}
           <video
-            poster="images/main-search-video-poster.jpg"
+            poster="https://picsum.photos/200"
             loop
             autoPlay
             muted
@@ -145,7 +145,7 @@ const ListeoIndexComponent = () => {
                         <i className="im im-icon-Hamburger"></i>
                         <h4>{category?.name}</h4>
                         <span className="category-box-counter-alt">12</span>
-                        <img src="/assets/images/bootstrap-logo.png"></img>
+                        <img src="https://picsum.photos/200"></img>
                       </a>
                     )
                   );

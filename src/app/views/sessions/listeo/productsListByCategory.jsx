@@ -1,7 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link, Redirect } from "react-router-dom";
+import { RenderMap, Geocoder } from "app/appWidgets";
 
 const ProductsListByCategory = () => {
+  const [mapCenter, setMapCenter] = useState({ lng: 0, lat: 0 });
+  const { geolocation, onLine } = navigator;
+  const getGeo = (position) => {
+    setMapCenter({
+      lat: position?.coords?.latitude,
+      lng: position?.coords?.longitude,
+    });
+  };
+
+  useEffect(() => {
+    
+    geolocation.getCurrentPosition(getGeo);
+  }, []);
+
+  useEffect(() => {
+    RenderMap({ 
+      container: "map", 
+      center: mapCenter,
+    });
+  }, [mapCenter]);
   return (
     <>
       <div className="fs-container">
@@ -442,9 +463,7 @@ const ProductsListByCategory = () => {
         </div>
         <div className="fs-inner-container map-fixed">
           <div id="map-container">
-            <div id="map" data-map-zoom="9" data-map-scroll="true">
-              MAP GOES HERE
-            </div>
+            <div id="map" data-map-zoom="9" data-map-scroll="true"></div>
           </div>
         </div>
       </div>

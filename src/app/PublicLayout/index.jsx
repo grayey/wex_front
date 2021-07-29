@@ -4,9 +4,10 @@ import ListeoHeaderComponent from "./layouts/listeoHeaderComponent";
 import ListeoFooterComponent from "./layouts/listeoFooterComponent";
 import SeoComponent from "./layouts/seoComponent";
 import { renderRoutes } from "react-router-config";
-import "./layouts/assets/styles/style.css";
 import "./layouts/assets/styles/main-color.css";
-import "../../styles/app/app.scss";
+import "./layouts/assets/styles/style.css";
+// import "./layouts/assets/styles/bootstrap45.css";
+
 
 const PublicLayoutComponent = (props) => {
  

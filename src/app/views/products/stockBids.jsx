@@ -6,6 +6,7 @@ import * as utils from "@utils";
 import { Formik } from "formik";
 import * as yup from "yup";
 import BidService from "app/services/bidService";
+import { Link, Redirect } from "react-router-dom";
 
 import LaddaButton, {
   XL,
@@ -40,7 +41,10 @@ export default function StockBids(props) {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [ratedBid, setRatedBid] = useState({});
-
+  const [navigation, setNavigation] = useState({
+    navigate: false,
+    newRoute: "",
+  });
   const saveBidReview = () => {
     setIsSaving(true);
     const { rate, comment } = ratingForm;
@@ -78,7 +82,19 @@ export default function StockBids(props) {
     });
   };
 
-  return (
+  /**
+   *
+   * This method sets the product to be viewed
+   *
+   *
+   */
+  const gotoChatByBid = (event, bid) => {
+    event.preventDefault();
+    const newRoute = `/dashboard/bids/${bid._id}/chat`;
+    setNavigation({ navigate: true, newRoute });
+  };
+
+  return navigation.navigate ? <Redirect to={navigation.newRoute} /> : (
     <>
       <Modal
         show={showRatingModal}
@@ -330,7 +346,7 @@ export default function StockBids(props) {
                                 <Dropdown.Divider></Dropdown.Divider>
                               </>
                             )}
-                            <Dropdown.Item eventKey={`${bid._id}2`}>
+                            <Dropdown.Item eventKey={`${bid._id}2`} onClick={(e) => gotoChatByBid(e, bid)}>
                               Chat <FaExternalLinkAlt />
                             </Dropdown.Item>
                           </Dropdown.Menu>
